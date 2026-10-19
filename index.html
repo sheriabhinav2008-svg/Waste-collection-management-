@@ -96,8 +96,8 @@
           </select>
           <label for="description">Description</label>
           <textarea id="description" required maxlength="400" placeholder="Briefly describe the issue"></textarea>
-          <label for="issuePhoto">Upload a photo (optional)</label>
-          <input class="photo-input" id="issuePhoto" type="file" accept="image/*" aria-describedby="photoHelp" />
+          <label for="issuePhoto">Before collection photo (required) *</label>
+          <input class="photo-input" id="issuePhoto" type="file" accept="image/*" required aria-describedby="photoHelp" />
           <p id="photoHelp" class="muted">Choose a photo of the waste or water issue. Image limit: 1 MB.</p>
           <img id="photoPreview" class="photo-preview" alt="Preview of selected issue photo" />
           <button class="secondary" id="removePhoto" type="button" hidden>Remove photo</button>
