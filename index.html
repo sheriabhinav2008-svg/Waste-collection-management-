@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartBin 360 | Waste Collection Management</title>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Sans+Bengali&family=Noto+Sans+Devanagari&family=Noto+Sans+Gujarati&family=Noto+Sans+Gurmukhi&family=Noto+Sans+Kannada&family=Noto+Sans+Malayalam&family=Noto+Sans+Oriya&family=Noto+Sans+Tamil&family=Noto+Sans+Telugu&display=swap");
     :root { font-family: Arial, sans-serif; color: #18302a; background: #f3f7f4; }
     * { box-sizing: border-box; }
     body { margin: 0; }
@@ -486,11 +487,6 @@
         const val = el.dataset.originalPlaceholder;
         el.placeholder = activeLanguage === "en" ? val : ((UI_TEXT[activeLanguage] || {})[val] || val);
       });
-      document.querySelectorAll("button[data-voice-for]").forEach(b => {
-        b.textContent = (UI_TEXT[activeLanguage] || {})["🎙 Speak"] || "🎙 Speak";
-      });
-      const readButton = $("readPageButton");
-      if (readButton) readButton.textContent = (UI_TEXT[activeLanguage] || {})["Read page aloud"] || "🔊 Read page aloud";
     }
     $("languageSelect").value = activeLanguage;
     $("languageSelect").addEventListener("change", () => {
