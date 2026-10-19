@@ -38,11 +38,21 @@
     .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
     .actions select { flex: 1; min-width: 145px; }
     .empty { padding: 24px; text-align: center; color: #62756a; border: 1px dashed #c7d7cc; border-radius: 10px; }
+    .tracker-panel { margin-bottom: 18px; }
+    .track-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .track-form label { margin-top: 0; }
+    .timeline { list-style: none; padding: 0; margin: 16px 0 0; }
+    .timeline li { border-left: 2px solid #cfe2d5; margin-left: 8px; padding: 0 0 16px 20px; }
+    .timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .timeline li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #176b4d; margin-left: -27px; margin-right: 12px; }
+    .timeline time { display: block; font-size: 12px; color: #62756a; margin-top: 4px; }
+    .track-result { margin-top: 14px; }
+    .track-summary { background: #f7fcf8; border: 1px solid #dce8df; border-radius: 10px; padding: 14px; }
     .photo-input { border: 1px dashed #8db9a0; background: #f7fcf8; }
     .photo-preview { display: none; margin-top: 10px; max-width: 100%; max-height: 220px; object-fit: contain; border: 1px solid #dce8df; border-radius: 8px; }
     .complaint-photo { display: block; max-width: 100%; max-height: 260px; object-fit: contain; margin-top: 10px; border-radius: 8px; border: 1px solid #dce8df; }
     footer { text-align: center; color: #62756a; font-size: 12px; padding: 0 16px 24px; }
-    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .track-form { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -57,6 +67,15 @@
       <div class="stat">In progress<strong id="progressCount">0</strong></div>
       <div class="stat">Completed<strong id="completedCount">0</strong></div>
       <div class="stat">Not completed<strong id="notCompletedCount">0</strong></div>
+    </section>
+    <section class="panel tracker-panel">
+      <h2>Track your complaint</h2>
+      <p class="muted">Enter the complaint ID you received after submitting a report to see its latest status and update history.</p>
+      <form id="trackForm" class="track-form">
+        <div><label for="trackId">Complaint ID</label><input id="trackId" required placeholder="e.g. SB-1234567-42" /></div>
+        <button class="secondary" type="submit">Track complaint</button>
+      </form>
+      <div id="trackResult" class="track-result" aria-live="polite"></div>
     </section>
     <div class="layout">
       <section class="panel">
@@ -118,6 +137,35 @@
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       })[ch]);
     }
+    function formatTimestamp(value) {
+      if (!value) return "Not recorded";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+    }
+    function addHistory(item, title, detail, timestamp = new Date().toISOString()) {
+      if (!Array.isArray(item.history)) item.history = [];
+      item.history.push({ title, detail, timestamp });
+      item.updatedAt = formatTimestamp(timestamp);
+    }
+    function renderTracker(item) {
+      const result = $("trackResult");
+      if (!item) {
+        result.innerHTML = '<div class="empty">No matching complaint found in this browser. Check the ID or open the same browser where the report was submitted.</div>';
+        return;
+      }
+      const history = Array.isArray(item.history) && item.history.length ? item.history :
+        [{ title: "Complaint submitted", detail: "Current status: " + item.status, timestamp: item.createdAt }];
+      result.innerHTML = `
+        <div class="track-summary">
+          <div class="complaint-top"><h3>${escapeHtml(item.type)} · ${escapeHtml(item.id)}</h3><span class="pill ${item.status.toLowerCase().replace(" ", "-")}">${escapeHtml(item.status)}</span></div>
+          <p><strong>Location:</strong> ${escapeHtml(item.location)}</p>
+          <p>${escapeHtml(item.description)}</p>
+          <p class="muted">Assigned collector: ${escapeHtml(item.collector || "Not yet assigned")}</p>
+          <p class="muted">Officer viewed: ${escapeHtml(item.seenAt || "Not yet marked as seen")}</p>
+          <h3>Complaint timeline</h3>
+          <ul class="timeline">${history.map(event => `<li><strong>${escapeHtml(event.title)}</strong><div>${escapeHtml(event.detail || "")}</div><time>${escapeHtml(formatTimestamp(event.timestamp))}</time></li>`).join("")}</ul>
+        </div>`;
+    }
     function render() {
       const all = readComplaints();
       $("totalCount").textContent = all.length;
@@ -143,6 +191,7 @@
             <p>${escapeHtml(item.description)}</p>
             ${item.photoDataUrl ? `<img class="complaint-photo" src="${escapeHtml(item.photoDataUrl)}" alt="Photo attached to report ${escapeHtml(item.id)}" loading="lazy">` : ""}
             <div class="muted">Reported by ${escapeHtml(item.reporter)} · ${escapeHtml(item.createdAt)}</div>
+            <div class="muted">${item.seenAt ? "Seen by officer: " + escapeHtml(item.seenAt) : "Not yet marked as seen by an officer"}</div>
             <div class="actions">
               <label for="worker-${item.id}" style="margin:0">Assign collector</label>
               <select id="worker-${item.id}" aria-label="Assign collector for ${escapeHtml(item.id)}">
@@ -152,12 +201,14 @@
                 ).join("")}
               </select>
               <button class="secondary" data-action="save" data-id="${item.id}">Save</button>
+              <button class="secondary" data-action="seen" data-id="${item.id}" ${item.seenAt ? "disabled" : ""}>${item.seenAt ? "Seen by officer ✓" : "Mark as seen"}</button>
               <select id="status-${item.id}" aria-label="Status for ${escapeHtml(item.id)}">
                 ${statuses.map(s => `<option ${item.status === s ? "selected" : ""}>${s}</option>`).join("")}
               </select>
               <button class="secondary" data-action="status" data-id="${item.id}">Update status</button>
             </div>
             <div class="muted">${item.collector ? "Assigned to: " + escapeHtml(item.collector) : "Not yet assigned"}</div>
+            <div class="muted">Last updated: ${escapeHtml(item.updatedAt || item.createdAt)}</div>
           </article>`;
       }).join("");
     }
@@ -201,12 +252,16 @@
     $("reportForm").addEventListener("submit", (event) => {
       event.preventDefault();
       const items = readComplaints();
-      items.push({
+      const createdISO = new Date().toISOString();
+      const createdDisplay = new Date(createdISO).toLocaleString();
+      const complaint = {
         id: makeId(), reporter: $("reporter").value.trim(),
         location: $("location").value.trim(), type: $("wasteType").value,
         description: $("description").value.trim(), photoDataUrl: selectedPhotoDataUrl,
-        status: "Pending", collector: "", createdAt: new Date().toLocaleString()
-      });
+        status: "Pending", collector: "", createdAt: createdDisplay, createdAtISO: createdISO, updatedAt: createdDisplay, seenAt: "", history: []
+      };
+      addHistory(complaint, "Complaint submitted", "Your report was received and is awaiting officer review.", createdISO);
+      items.push(complaint);
       try {
         saveComplaints(items);
         event.target.reset();
@@ -226,18 +281,50 @@
       const items = readComplaints();
       const item = items.find(x => x.id === button.dataset.id);
       if (!item) return;
-      if (button.dataset.action === "save") item.collector = $("worker-" + item.id).value;
-      else if (button.dataset.action === "status") item.status = $("status-" + item.id).value;
-      saveComplaints(items); render();
+      if (button.dataset.action === "save") {
+        const newCollector = $("worker-" + item.id).value;
+        if (item.collector !== newCollector) {
+          item.collector = newCollector;
+          addHistory(item, "Collector assignment updated", newCollector ? "Assigned to " + newCollector + "." : "Collector assignment removed.");
+        }
+      } else if (button.dataset.action === "seen") {
+        if (!item.seenAt) {
+          const now = new Date();
+          item.seenAt = now.toLocaleString();
+          addHistory(item, "Seen by officer", "An officer marked this complaint as viewed.", now.toISOString());
+        }
+      } else if (button.dataset.action === "status") {
+        const newStatus = $("status-" + item.id).value;
+        if (item.status !== newStatus) {
+          const oldStatus = item.status;
+          item.status = newStatus;
+          addHistory(item, "Status changed", oldStatus + " → " + newStatus);
+        }
+      }
+      saveComplaints(items);
+      if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
+      render();
+    });
+    $("trackForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const wantedId = $("trackId").value.trim().toUpperCase();
+      renderTracker(readComplaints().find(item => item.id.toUpperCase() === wantedId));
     });
     $("statusFilter").addEventListener("change", render);
+    function makeSample(reporter, location, type, description, status, collector) {
+      const now = new Date();
+      const item = { id: makeId(), reporter, location, type, description, status, collector, createdAt: now.toLocaleString(), createdAtISO: now.toISOString(), updatedAt: now.toLocaleString(), seenAt: "", history: [] };
+      addHistory(item, "Complaint submitted", "Sample report created for demonstration.", now.toISOString());
+      if (status !== "Pending") addHistory(item, "Status changed", "Pending → " + status, now.toISOString());
+      return item;
+    }
     $("loadSample").addEventListener("click", () => {
       const items = readComplaints();
       if (items.length && !confirm("Add sample reports to the existing list?")) return;
       items.push(
-        { id: makeId(), reporter: "Asha", location: "College Main Gate", type: "Overflowing bin", description: "The public bin is almost full and waste is beside it.", status: "Pending", collector: "", createdAt: new Date().toLocaleString() },
-        { id: makeId(), reporter: "Rahul", location: "Bus Stop, Sector 2", type: "Missed collection", description: "Waste has not been collected today.", status: "In Progress", collector: "Collector Ravi", createdAt: new Date().toLocaleString() },
-        { id: makeId(), reporter: "Priya", location: "Park Entrance", type: "Illegal dumping", description: "A pile of household waste needs pickup.", status: "Completed", collector: "Collector Meena", createdAt: new Date().toLocaleString() }
+        makeSample("Asha", "College Main Gate", "Overflowing bin", "The public bin is almost full and waste is beside it.", "Pending", ""),
+        makeSample("Rahul", "Bus Stop, Sector 2", "Missed collection", "Waste has not been collected today.", "In Progress", "Collector Ravi"),
+        makeSample("Priya", "Park Entrance", "Illegal dumping", "A pile of household waste needs pickup.", "Completed", "Collector Meena")
       );
       saveComplaints(items); render();
     });
