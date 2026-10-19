@@ -330,6 +330,32 @@
       if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
       render();
     });
+    $("complaintList").addEventListener("change", (event) => {
+      const input = event.target.closest("input.after-photo-input");
+      if (!input) return;
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) { alert("Please choose an image file."); input.value = ""; return; }
+      if (file.size > 1024 * 1024) { alert("Please choose an image smaller than 1 MB."); input.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const items = readComplaints();
+        const item = items.find(x => x.id === input.dataset.id);
+        if (!item) return;
+        item.afterPhotoDataUrl = String(reader.result || "");
+        addHistory(item, "After-collection photo uploaded", "Photo evidence of the cleaned location was added.");
+        try {
+          saveComplaints(items);
+          render();
+          if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
+        } catch (error) {
+          alert("Could not save the photo. Browser storage may be full. Try a smaller image or clear old demo reports.");
+        }
+      };
+      reader.onerror = () => alert("The after-collection photo could not be read. Please try another image.");
+      reader.readAsDataURL(file);
+    });
+
     $("trackForm").addEventListener("submit", (event) => {
       event.preventDefault();
       const wantedId = $("trackId").value.trim().toUpperCase();
