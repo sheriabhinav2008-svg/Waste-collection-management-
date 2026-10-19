@@ -64,12 +64,12 @@ No framework, package installation, or build step is required for this frontend 
 ## How It Works
 
 1. A citizen enters their name, the issue location, issue type, and description.
-2. They can optionally upload a photo. The selected image is previewed before submission.
+2. The citizen must upload a before-collection photo. The selected image is previewed before submission.
 3. JavaScript creates a unique complaint ID and initially marks the report as **Pending**.
 4. The report and optional photo are saved in the browser's localStorage.
 5. The dashboard displays the report, photo (if attached), and summary counters.
-6. A dashboard user can assign a collector, mark the report as seen by an officer, and update the work status.
-7. Each action is added to the complaint timeline with a timestamp.
+6. A dashboard user can assign a collector, mark the report as seen by an officer, and upload an after-collection photo.
+7. The after photo is required before the report can be marked Completed. Photo uploads and other actions are added to the complaint timeline with timestamps.
 8. A citizen enters the complaint ID in **Track your complaint** to see the current status and the recorded timeline.
 
 ## Basic System Architecture
