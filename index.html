@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBin 360 | Waste Collection Management</title>
+  <style>
+    :root { font-family: Arial, sans-serif; color: #18302a; background: #f3f7f4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #176b4d; color: white; padding: 24px 5%; }
+    header h1 { margin: 0 0 6px; }
+    header p { margin: 0; opacity: .9; }
+    main { max-width: 1100px; margin: 24px auto; padding: 0 16px 40px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat, .panel { background: white; border: 1px solid #dce8df; border-radius: 12px; padding: 18px; box-shadow: 0 3px 12px #1232; }
+    .stat strong { display: block; font-size: 28px; margin-top: 8px; color: #176b4d; }
+    .layout { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.5fr); gap: 18px; }
+    h2 { margin-top: 0; font-size: 20px; }
+    label { display: block; margin: 12px 0 6px; font-weight: bold; font-size: 14px; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea { width: 100%; border: 1px solid #c7d7cc; border-radius: 8px; padding: 10px; background: white; }
+    textarea { min-height: 86px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
+    .primary { background: #176b4d; color: white; margin-top: 14px; width: 100%; }
+    .secondary { background: #e6f2ea; color: #14553e; }
+    .danger { background: #ffeded; color: #8c2727; }
+    .muted { color: #62756a; font-size: 13px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .toolbar select { max-width: 190px; }
+    .complaint { border: 1px solid #e0e9e3; border-radius: 10px; padding: 14px; margin-top: 10px; }
+    .complaint-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .complaint h3 { margin: 0 0 6px; font-size: 16px; }
+    .pill { border-radius: 999px; padding: 5px 9px; font-size: 12px; white-space: nowrap; background: #fff0cf; color: #805600; }
+    .pill.completed { background: #dff5e6; color: #176b4d; }
+    .pill.in-progress { background: #e3efff; color: #2456a6; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+    .actions select { flex: 1; min-width: 145px; }
+    .empty { padding: 24px; text-align: center; color: #62756a; border: 1px dashed #c7d7cc; border-radius: 10px; }
+    footer { text-align: center; color: #62756a; font-size: 12px; padding: 0 16px 24px; }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>♻️ SmartBin 360</h1>
+    <p>Smart Waste Collection and Complaint Management — student demo</p>
+  </header>
+  <main>
+    <section class="stats" aria-label="Complaint statistics">
+      <div class="stat">Total reports<strong id="totalCount">0</strong></div>
+      <div class="stat">Pending<strong id="pendingCount">0</strong></div>
+      <div class="stat">In progress<strong id="progressCount">0</strong></div>
+      <div class="stat">Completed<strong id="completedCount">0</strong></div>
+    </section>
+    <div class="layout">
+      <section class="panel">
+        <h2>Report a waste issue</h2>
+        <p class="muted">Enter a real or sample location to create a demo complaint.</p>
+        <form id="reportForm">
+          <label for="reporter">Your name</label>
+          <input id="reporter" required maxlength="60" placeholder="e.g. Asha" />
+          <label for="location">Location / landmark</label>
+          <input id="location" required maxlength="120" placeholder="e.g. Main gate, Block A" />
+          <label for="wasteType">Waste issue</label>
+          <select id="wasteType" required>
+            <option value="Overflowing bin">Overflowing bin</option>
+            <option value="Illegal dumping">Illegal dumping</option>
+            <option value="Missed collection">Missed collection</option>
+            <option value="Waste segregation">Waste segregation issue</option>
+          </select>
+          <label for="description">Description</label>
+          <textarea id="description" required maxlength="400" placeholder="Briefly describe the issue"></textarea>
+          <button class="primary" type="submit">Submit complaint</button>
+        </form>
+        <p class="muted">Demo note: reports are saved in this browser using localStorage. This is not a secure multi-user production system.</p>
+      </section>
+      <section class="panel">
+        <h2>Collection management dashboard</h2>
+        <div class="toolbar">
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="All">All statuses</option><option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option><option value="Completed">Completed</option>
+          </select>
+          <button class="secondary" id="loadSample" type="button">Load sample reports</button>
+          <button class="danger" id="clearAll" type="button">Clear demo data</button>
+        </div>
+        <div id="complaintList" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <footer>SmartBin 360 prototype · No real sensor, GPS, or server integration in this version.</footer>
+  <script>
+    const STORAGE_KEY = "smartbin360_complaints_v1";
+    const statuses = ["Pending", "In Progress", "Completed"];
+    const $ = (id) => document.getElementById(id);
+    function readComplaints() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch { return []; }
+    }
+    function saveComplaints(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+    function makeId() {
+      return "SB-" + Date.now().toString().slice(-7) + "-" + Math.floor(Math.random() * 90 + 10);
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[ch]);
+    }
+    function render() {
+      const all = readComplaints();
+      $("totalCount").textContent = all.length;
+      $("pendingCount").textContent = all.filter(x => x.status === "Pending").length;
+      $("progressCount").textContent = all.filter(x => x.status === "In Progress").length;
+      $("completedCount").textContent = all.filter(x => x.status === "Completed").length;
+      const filter = $("statusFilter").value;
+      const shown = all.filter(x => filter === "All" || x.status === filter);
+      const list = $("complaintList");
+      if (!shown.length) {
+        list.innerHTML = '<div class="empty">No reports to display. Submit a complaint or load sample reports.</div>';
+        return;
+      }
+      list.innerHTML = shown.slice().reverse().map(item => {
+        const cssStatus = item.status.toLowerCase().replace(" ", "-");
+        return `
+          <article class="complaint">
+            <div class="complaint-top"><div>
+              <h3>${escapeHtml(item.type)} <span class="muted">· ${escapeHtml(item.id)}</span></h3>
+              <div><strong>Location:</strong> ${escapeHtml(item.location)}</div>
+            </div><span class="pill ${cssStatus}">${escapeHtml(item.status)}</span></div>
+            <p>${escapeHtml(item.description)}</p>
+            <div class="muted">Reported by ${escapeHtml(item.reporter)} · ${escapeHtml(item.createdAt)}</div>
+            <div class="actions">
+              <label for="worker-${item.id}" style="margin:0">Assign collector</label>
+              <select id="worker-${item.id}" aria-label="Assign collector for ${escapeHtml(item.id)}">
+                <option value="">Unassigned</option>
+                ${["Collector Ravi", "Collector Meena", "Collector Arun"].map(name =>
+                  `<option value="${name}" ${item.collector === name ? "selected" : ""}>${name}</option>`
+                ).join("")}
+              </select>
+              <button class="secondary" data-action="save" data-id="${item.id}">Save</button>
+              <select id="status-${item.id}" aria-label="Status for ${escapeHtml(item.id)}">
+                ${statuses.map(s => `<option ${item.status === s ? "selected" : ""}>${s}</option>`).join("")}
+              </select>
+              <button class="secondary" data-action="status" data-id="${item.id}">Update status</button>
+            </div>
+            <div class="muted">${item.collector ? "Assigned to: " + escapeHtml(item.collector) : "Not yet assigned"}</div>
+          </article>`;
+      }).join("");
+    }
+    $("reportForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const items = readComplaints();
+      items.push({
+        id: makeId(), reporter: $("reporter").value.trim(),
+        location: $("location").value.trim(), type: $("wasteType").value,
+        description: $("description").value.trim(), status: "Pending",
+        collector: "", createdAt: new Date().toLocaleString()
+      });
+      saveComplaints(items); event.target.reset(); render();
+      alert("Complaint submitted successfully!");
+    });
+    $("complaintList").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const items = readComplaints();
+      const item = items.find(x => x.id === button.dataset.id);
+      if (!item) return;
+      if (button.dataset.action === "save") item.collector = $("worker-" + item.id).value;
+      else if (button.dataset.action === "status") item.status = $("status-" + item.id).value;
+      saveComplaints(items); render();
+    });
+    $("statusFilter").addEventListener("change", render);
+    $("loadSample").addEventListener("click", () => {
+      const items = readComplaints();
+      if (items.length && !confirm("Add sample reports to the existing list?")) return;
+      items.push(
+        { id: makeId(), reporter: "Asha", location: "College Main Gate", type: "Overflowing bin", description: "The public bin is almost full and waste is beside it.", status: "Pending", collector: "", createdAt: new Date().toLocaleString() },
+        { id: makeId(), reporter: "Rahul", location: "Bus Stop, Sector 2", type: "Missed collection", description: "Waste has not been collected today.", status: "In Progress", collector: "Collector Ravi", createdAt: new Date().toLocaleString() },
+        { id: makeId(), reporter: "Priya", location: "Park Entrance", type: "Illegal dumping", description: "A pile of household waste needs pickup.", status: "Completed", collector: "Collector Meena", createdAt: new Date().toLocaleString() }
+      );
+      saveComplaints(items); render();
+    });
+    $("clearAll").addEventListener("click", () => {
+      if (confirm("Delete all SmartBin 360 demo reports from this browser?")) {
+        localStorage.removeItem(STORAGE_KEY); render();
+      }
+    });
+    render();
+  </script>
+</body>
+</html>
