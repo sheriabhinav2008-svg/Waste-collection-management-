@@ -8,7 +8,9 @@ SmartBin 360 lets a citizen submit a waste complaint and gives an admin-style da
 ## Features
 - Submit waste reports with name, location, issue type, and description
 - Generate a unique complaint ID
-- Track Pending, In Progress, and Completed statuses
+- Track Pending, In Progress, Completed, and Not Completed statuses
+- Clearly mark whether an assigned collection task was completed or not
+- Dashboard counters include a separate Not Completed count
 - Assign a collector to each report
 - Filter reports by status
 - Dashboard counters for total and status-wise reports
@@ -27,7 +29,8 @@ SmartBin 360 lets a citizen submit a waste complaint and gives an admin-style da
 2. Open the project folder.
 3. Open `index.html` in Chrome, Edge, or Firefox.
 4. Submit a complaint or click **Load sample reports**.
-5. Assign a collector and change a report's status.
+5. Assign a collector and use the status dropdown to choose **Completed** or **Not Completed** (or keep it Pending / In Progress).
+6. Check the dashboard counters to see how many jobs are completed and not completed.
 
 No package installation or build step is needed for this frontend demo.
 
@@ -36,7 +39,7 @@ No package installation or build step is needed for this frontend demo.
 2. JavaScript creates a complaint ID and starts the report at Pending.
 3. The report is saved in the browser's localStorage.
 4. The dashboard displays the report and updates its counters.
-5. A user can assign a collector and change the status.
+5. A user can assign a collector and set the task to Completed or Not Completed. The dashboard updates the relevant counters immediately.
 
 ## System architecture
 ```text
