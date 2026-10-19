@@ -1,70 +1,113 @@
-# SmartBin 360 — Waste Collection Management
+# Waste Collection Management System
 
-A beginner-friendly prototype for a Smart Waste Collection Management System.
+**Project name:** Waste Collection Management System  
+**Demo name:** SmartBin 360
 
-## Project overview
-SmartBin 360 lets a citizen submit a waste complaint and gives an admin-style dashboard to assign collection workers and update task status.
+A beginner-friendly, frontend-only project that helps citizens report waste and water-related issues and lets a dashboard user assign collection workers and track the progress of each report.
+
+## Project Overview
+
+The system provides a simple way to record a problem, attach a photo for clearer understanding, and monitor whether the reported work is pending, in progress, completed, or not completed. It is designed as a student project and demonstration prototype.
 
 ## Features
-- Submit waste reports with name, location, issue type, and description
+
+- Submit a report with the reporter's name, location, issue type, and description
+- Report different issues, including overflowing bins, water leakage or stagnant water, illegal dumping, missed collection, and waste segregation
+- Optionally upload a photo of the issue and preview it before submitting
+- Validate uploaded images and limit the photo size to 1 MB
 - Generate a unique complaint ID
-- Track Pending, In Progress, Completed, and Not Completed statuses
-- Clearly mark whether an assigned collection task was completed or not
-- Dashboard counters include a separate Not Completed count
-- Assign a collector to each report
+- Assign a collection worker to a report
+- Track **Pending**, **In Progress**, **Completed**, and **Not Completed** statuses
+- View total and status-wise dashboard counters
 - Filter reports by status
-- Dashboard counters for total and status-wise reports
-- Load sample data for a project demonstration
-- Save demo data in browser localStorage
+- Load sample reports for a quick demonstration
+- Save demonstration reports in the browser's local storage
 
-## Technologies
-- HTML — page structure
-- CSS — responsive styling
-- JavaScript — form handling and dashboard logic
-- localStorage — browser-local demo persistence
+## Technologies Used
 
-## How to run
-1. Open the repository on GitHub and download the source, or clone it:
-   `git clone https://github.com/sheriabhinav2008-svg/Waste-collection-management-.git`
-2. Open the project folder.
-3. Open `index.html` in Chrome, Edge, or Firefox.
-4. Submit a complaint or click **Load sample reports**.
-5. Assign a collector and use the status dropdown to choose **Completed** or **Not Completed** (or keep it Pending / In Progress).
-6. Check the dashboard counters to see how many jobs are completed and not completed.
+- **HTML5** — page structure and report form
+- **CSS3** — styling and responsive layout
+- **JavaScript** — form validation, photo preview, complaint management, and dashboard updates
+- **Browser localStorage** — local demo data persistence
 
-No package installation or build step is needed for this frontend demo.
+No framework, package installation, or build step is required for this frontend demo.
 
-## How it works
-1. A citizen fills out the report form.
-2. JavaScript creates a complaint ID and starts the report at Pending.
-3. The report is saved in the browser's localStorage.
-4. The dashboard displays the report and updates its counters.
-5. A user can assign a collector and set the task to Completed or Not Completed. The dashboard updates the relevant counters immediately.
+## Getting Started
 
-## System architecture
+### Option 1: Run locally
+
+1. Clone this repository:
+
+   ```bash
+   git clone https://github.com/sheriabhinav2008-svg/Waste-collection-management-.git
+   ```
+
+2. Open the downloaded project folder.
+3. Open `index.html` in a modern browser such as Chrome, Edge, or Firefox.
+4. Fill in the report form and optionally attach a photo.
+5. Submit the report to see it on the dashboard.
+6. Assign a collector and change the status to **In Progress**, **Completed**, or **Not Completed**.
+
+### Option 2: Download from GitHub
+
+1. Open this repository on GitHub.
+2. Select **Code → Download ZIP**.
+3. Extract the ZIP file.
+4. Open `index.html` in your browser.
+
+## How It Works
+
+1. A citizen enters their name, the issue location, issue type, and description.
+2. They can optionally upload a photo. The selected image is previewed before submission.
+3. JavaScript creates a unique complaint ID and initially marks the report as **Pending**.
+4. The report and optional photo are saved in the browser's localStorage.
+5. The dashboard displays the report, photo (if attached), and summary counters.
+6. A dashboard user can assign a collector and update the work status.
+7. The dashboard counters and status filters reflect the saved report data.
+
+## Basic System Architecture
+
 ```text
-Citizen / Admin / Collector
+Citizen / Dashboard User
           |
           v
-   HTML + CSS + JavaScript
+ Report Form + Optional Photo
           |
           v
-  Browser localStorage
+     HTML + CSS + JavaScript
           |
           v
-Complaint list and dashboard
+     Browser localStorage
+          |
+          v
+ Complaint Dashboard
+ (photo, assigned collector,
+  status and summary counters)
 ```
 
-## Important limitations
-This is a frontend-only student prototype. Data is stored only in the current browser and is not shared between users or devices. It does not yet include secure login, a backend API, a central database, live GPS, route optimization, real notifications, or IoT sensors. Do not use it to store real personal information.
+## Important Limitations
 
-## Future improvements
-- Node.js and Express backend
-- MongoDB or Firebase shared database
-- Role-based citizen, admin, and collector login
-- Map integration and route optimization
-- IoT bin-fill sensors and automatic alerts
-- Image upload and verification workflow
+This is a **frontend-only student prototype**.
 
-## Project title
-**SmartBin 360 — An Intelligent Waste Collection and Monitoring System**
+- Data is stored in the browser where the project is being used; it is not automatically shared with other users or devices.
+- Uploaded photos are stored as data in localStorage, so storage space is limited. Use small demo images.
+- There is no backend API, shared database, secure login, live GPS tracking, route optimization, real notification service, or IoT sensor integration.
+- Do not use this prototype to store sensitive personal information or for production operations.
+
+## Future Enhancements
+
+- Add a backend using Node.js and Express
+- Store reports in a shared database such as MongoDB or Firebase
+- Add role-based citizen, admin, and collector accounts
+- Upload photos to dedicated image storage
+- Add map-based issue locations and optimized collection routes
+- Add email or SMS notifications when report status changes
+- Integrate IoT bin-fill sensors and automated alerts
+
+## Repository
+
+[Waste Collection Management System on GitHub](https://github.com/sheriabhinav2008-svg/Waste-collection-management-)
+
+## Project Title
+
+**Waste Collection Management System — SmartBin 360**
