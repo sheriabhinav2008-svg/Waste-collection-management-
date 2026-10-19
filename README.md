@@ -7,7 +7,7 @@ A beginner-friendly, frontend-only project that helps citizens report waste and 
 
 ## Project Overview
 
-The system provides a simple way to record a problem, attach a photo for clearer understanding, and monitor whether the reported work is pending, in progress, completed, or not completed. It is designed as a student project and demonstration prototype.
+The system provides a simple way to record a problem with a required before-collection photo, add after-collection photo evidence, and monitor whether the reported work is pending, in progress, completed, or not completed. It is designed as a student project and demonstration prototype.
 
 ## Features
 
@@ -66,8 +66,8 @@ No framework, package installation, or build step is required for this frontend 
 1. A citizen enters their name, the issue location, issue type, and description.
 2. The citizen must upload a before-collection photo. The selected image is previewed before submission.
 3. JavaScript creates a unique complaint ID and initially marks the report as **Pending**.
-4. The report and optional photo are saved in the browser's localStorage.
-5. The dashboard displays the report, photo (if attached), and summary counters.
+4. The report and required before-collection photo are saved in the browser's localStorage.
+5. The dashboard displays the report, before/after photo comparison, and summary counters.
 6. A dashboard user can assign a collector, mark the report as seen by an officer, and upload an after-collection photo.
 7. The after photo is required before the report can be marked Completed. Photo uploads and other actions are added to the complaint timeline with timestamps.
 8. A citizen enters the complaint ID in **Track your complaint** to see the current status and the recorded timeline.
