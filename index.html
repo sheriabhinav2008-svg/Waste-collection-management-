@@ -33,6 +33,7 @@
     .complaint h3 { margin: 0 0 6px; font-size: 16px; }
     .pill { border-radius: 999px; padding: 5px 9px; font-size: 12px; white-space: nowrap; background: #fff0cf; color: #805600; }
     .pill.completed { background: #dff5e6; color: #176b4d; }
+    .pill.not-completed { background: #ffeded; color: #8c2727; }
     .pill.in-progress { background: #e3efff; color: #2456a6; }
     .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
     .actions select { flex: 1; min-width: 145px; }
@@ -52,6 +53,7 @@
       <div class="stat">Pending<strong id="pendingCount">0</strong></div>
       <div class="stat">In progress<strong id="progressCount">0</strong></div>
       <div class="stat">Completed<strong id="completedCount">0</strong></div>
+      <div class="stat">Not completed<strong id="notCompletedCount">0</strong></div>
     </section>
     <div class="layout">
       <section class="panel">
@@ -80,7 +82,7 @@
         <div class="toolbar">
           <select id="statusFilter" aria-label="Filter by status">
             <option value="All">All statuses</option><option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option><option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Not Completed">Not Completed</option>
           </select>
           <button class="secondary" id="loadSample" type="button">Load sample reports</button>
           <button class="danger" id="clearAll" type="button">Clear demo data</button>
@@ -92,7 +94,7 @@
   <footer>SmartBin 360 prototype · No real sensor, GPS, or server integration in this version.</footer>
   <script>
     const STORAGE_KEY = "smartbin360_complaints_v1";
-    const statuses = ["Pending", "In Progress", "Completed"];
+    const statuses = ["Pending", "In Progress", "Completed", "Not Completed"];
     const $ = (id) => document.getElementById(id);
     function readComplaints() {
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
@@ -113,6 +115,7 @@
       $("pendingCount").textContent = all.filter(x => x.status === "Pending").length;
       $("progressCount").textContent = all.filter(x => x.status === "In Progress").length;
       $("completedCount").textContent = all.filter(x => x.status === "Completed").length;
+      $("notCompletedCount").textContent = all.filter(x => x.status === "Not Completed").length;
       const filter = $("statusFilter").value;
       const shown = all.filter(x => filter === "All" || x.status === filter);
       const list = $("complaintList");
