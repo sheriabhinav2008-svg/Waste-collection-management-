@@ -251,13 +251,18 @@
 
     $("reportForm").addEventListener("submit", (event) => {
       event.preventDefault();
+      if (!selectedPhotoDataUrl) {
+        alert("A before-collection photo is required. Please select a photo before submitting.");
+        photoInput.focus();
+        return;
+      }
       const items = readComplaints();
       const createdISO = new Date().toISOString();
       const createdDisplay = new Date(createdISO).toLocaleString();
       const complaint = {
         id: makeId(), reporter: $("reporter").value.trim(),
         location: $("location").value.trim(), type: $("wasteType").value,
-        description: $("description").value.trim(), photoDataUrl: selectedPhotoDataUrl,
+        description: $("description").value.trim(), photoDataUrl: selectedPhotoDataUrl, afterPhotoDataUrl: "",
         status: "Pending", collector: "", createdAt: createdDisplay, createdAtISO: createdISO, updatedAt: createdDisplay, seenAt: "", history: []
       };
       addHistory(complaint, "Complaint submitted", "Your report was received and is awaiting officer review.", createdISO);
@@ -295,6 +300,11 @@
         }
       } else if (button.dataset.action === "status") {
         const newStatus = $("status-" + item.id).value;
+        if (newStatus === "Completed" && !item.afterPhotoDataUrl) {
+          alert("Upload the required after-collection photo before marking this complaint Completed.");
+          $("after-photo-" + item.id).focus();
+          return;
+        }
         if (item.status !== newStatus) {
           const oldStatus = item.status;
           item.status = newStatus;
