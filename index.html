@@ -69,9 +69,18 @@
 
     footer { text-align: center; color: #62756a; font-size: 12px; padding: 0 16px 24px; }
     @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .track-form { grid-template-columns: 1fr; } }
+  
+    .page-nav { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .page-nav a { display:inline-block; color:#14553e; background:#e6f2ea; padding:9px 12px; border-radius:8px; text-decoration:none; font-weight:bold; }
+    .page-nav a[aria-current="page"] { background:white; outline:2px solid #cfe2d5; }
+    .user-page main > .stats, .user-page .layout > section:nth-child(2) { display:none; }
+    .user-page .layout { grid-template-columns:minmax(260px, 1fr); max-width:760px; margin-left:auto; margin-right:auto; }
+    .admin-page main > .tracker-panel, .admin-page .layout > section:first-child { display:none; }
+    .admin-page .layout { grid-template-columns:minmax(0, 1fr); }
+
   </style>
 </head>
-<body>
+<body class="user-page">
   <header>
     <h1>♻️ SmartBin 360</h1>
     <p>Smart Waste Collection and Complaint Management — student demo</p>
@@ -90,6 +99,10 @@
       <span id="voiceStatus" class="language-status" aria-live="polite"></span>
     </div>
     <p class="voice-help">Use 🎙 Speak buttons to dictate into a field. Voice features depend on browser and device language support.</p>
+    <nav class="page-nav" aria-label="Main navigation">
+      <a href="index.html" aria-current="page">👤 User Portal</a>
+      <a href="admin.html">🛠 Administrator Portal</a>
+    </nav>
   </header>
   <main>
     <section class="stats" aria-label="Complaint statistics">
