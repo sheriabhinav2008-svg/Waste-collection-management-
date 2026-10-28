@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartBin 360 | Administrator Portal</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Sans+Bengali&family=Noto+Sans+Devanagari&family=Noto+Sans+Gujarati&family=Noto+Sans+Gurmukhi&family=Noto+Sans+Kannada&family=Noto+Sans+Malayalam&family=Noto+Sans+Oriya&family=Noto+Sans+Tamil&family=Noto+Sans+Telugu&display=swap");
+    :root { font-family: Arial, sans-serif; color: #18302a; background: #f3f7f4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #176b4d; color: white; padding: 24px 5%; }
+    header h1 { margin: 0 0 6px; }
+    header p { margin: 0; opacity: .9; }
+    main { max-width: 1100px; margin: 24px auto; padding: 0 16px 40px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat, .panel { background: white; border: 1px solid #dce8df; border-radius: 12px; padding: 18px; box-shadow: 0 3px 12px #1232; }
+    .stat strong { display: block; font-size: 28px; margin-top: 8px; color: #176b4d; }
+    .layout { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.5fr); gap: 18px; }
+    h2 { margin-top: 0; font-size: 20px; }
+    label { display: block; margin: 12px 0 6px; font-weight: bold; font-size: 14px; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea { width: 100%; border: 1px solid #c7d7cc; border-radius: 8px; padding: 10px; background: white; }
+    textarea { min-height: 86px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
+    .primary { background: #176b4d; color: white; margin-top: 14px; width: 100%; }
+    .secondary { background: #e6f2ea; color: #14553e; }
+    .danger { background: #ffeded; color: #8c2727; }
+    .muted { color: #62756a; font-size: 13px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .toolbar select { max-width: 190px; }
+    .complaint { border: 1px solid #e0e9e3; border-radius: 10px; padding: 14px; margin-top: 10px; }
+    .complaint-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .complaint h3 { margin: 0 0 6px; font-size: 16px; }
+    .pill { border-radius: 999px; padding: 5px 9px; font-size: 12px; white-space: nowrap; background: #fff0cf; color: #805600; }
+    .pill.completed { background: #dff5e6; color: #176b4d; }
+    .pill.not-completed { background: #ffeded; color: #8c2727; }
+    .pill.in-progress { background: #e3efff; color: #2456a6; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+    .actions select { flex: 1; min-width: 145px; }
+    .empty { padding: 24px; text-align: center; color: #62756a; border: 1px dashed #c7d7cc; border-radius: 10px; }
+    .tracker-panel { margin-bottom: 18px; }
+    .track-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .track-form label { margin-top: 0; }
+    .timeline { list-style: none; padding: 0; margin: 16px 0 0; }
+    .timeline li { border-left: 2px solid #cfe2d5; margin-left: 8px; padding: 0 0 16px 20px; }
+    .timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .timeline li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #176b4d; margin-left: -27px; margin-right: 12px; }
+    .timeline time { display: block; font-size: 12px; color: #62756a; margin-top: 4px; }
+    .track-result { margin-top: 14px; }
+    .track-summary { background: #f7fcf8; border: 1px solid #dce8df; border-radius: 10px; padding: 14px; }
+    .photo-input { border: 1px dashed #8db9a0; background: #f7fcf8; }
+    .photo-preview { display: none; margin-top: 10px; max-width: 100%; max-height: 220px; object-fit: contain; border: 1px solid #dce8df; border-radius: 8px; }
+    .complaint-photo { display: block; max-width: 100%; max-height: 260px; object-fit: contain; margin: 10px 0; border-radius: 8px; border: 1px solid #dce8df; }
+    .photo-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+    .photo-comparison > div { min-width: 0; padding: 10px; border: 1px solid #dce8df; border-radius: 8px; }
+    @media (max-width: 520px) { .photo-comparison { grid-template-columns: 1fr; } }
+
+    .language-tools { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; }
+    .language-tools label { color:white; margin:0; }
+    .language-tools select { width:auto; min-width:190px; }
+    .voice-btn { margin-top:8px; background:#e6f2ea; color:#14553e; }
+    .voice-btn.listening { background:#ffe1e1; color:#8c2727; }
+    .voice-help { color:#fff; font-size:12px; opacity:.9; margin-top:8px; }
+    .field-voice { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .field-voice button { margin:0; }
+    .language-status { color:#fff; font-size:13px; }
+    body[lang="te"], body[lang="hi"], body[lang="ta"], body[lang="kn"], body[lang="ml"], body[lang="mr"], body[lang="bn"], body[lang="gu"], body[lang="pa"], body[lang="or"], body[lang="ur"] { font-family:"Noto Sans Telugu","Noto Sans Devanagari","Noto Sans Tamil","Noto Sans Kannada","Noto Sans Malayalam","Noto Sans Bengali","Noto Sans Gujarati","Noto Sans Gurmukhi",Arial,sans-serif; }
+
+    footer { text-align: center; color: #62756a; font-size: 12px; padding: 0 16px 24px; }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .track-form { grid-template-columns: 1fr; } }
+  
+    .page-nav { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .page-nav a { display:inline-block; color:#14553e; background:#e6f2ea; padding:9px 12px; border-radius:8px; text-decoration:none; font-weight:bold; }
+    .page-nav a[aria-current="page"] { background:white; outline:2px solid #cfe2d5; }
+    .user-page main > .stats, .user-page .layout > section:nth-child(2) { display:none; }
+    .user-page .layout { grid-template-columns:minmax(260px, 1fr); max-width:760px; margin-left:auto; margin-right:auto; }
+    .admin-page main > .tracker-panel, .admin-page .layout > section:first-child { display:none; }
+    .admin-page .layout { grid-template-columns:minmax(0, 1fr); }
+
+  </style>
+</head>
+<body class="admin-page">
+  <header>
+    <h1>♻️ SmartBin 360</h1>
+    <p>Administrator Portal — review complaints, assign collectors, verify photos, and update work status.</p>
+
+    <div class="language-tools" aria-label="Language and voice tools">
+      <label for="languageSelect">🌐 Language / భాష / भाषा</label>
+      <select id="languageSelect" aria-label="Select interface language">
+        <option value="en">English</option><option value="te">తెలుగు (Telugu)</option>
+        <option value="hi">हिन्दी (Hindi)</option><option value="ta">தமிழ் (Tamil)</option>
+        <option value="kn">ಕನ್ನಡ (Kannada)</option><option value="ml">മലയാളം (Malayalam)</option>
+        <option value="mr">मराठी (Marathi)</option><option value="bn">বাংলা (Bengali)</option>
+        <option value="gu">ગુજરાતી (Gujarati)</option><option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+        <option value="or">ଓଡ଼ିଆ (Odia)</option><option value="ur">اردو (Urdu)</option>
+      </select>
+      <button class="secondary" type="button" id="readPageButton">🔊 Read page aloud</button>
+      <span id="voiceStatus" class="language-status" aria-live="polite"></span>
+    </div>
+    <p class="voice-help">Use 🎙 Speak buttons to dictate into a field. Voice features depend on browser and device language support.</p>
+    <nav class="page-nav" aria-label="Main navigation">
+      <a href="index.html">👤 User Portal</a>
+      <a href="admin.html" aria-current="page">🛠 Administrator Portal</a>
+    </nav>
+  </header>
+  <main>
+    <section class="stats" aria-label="Complaint statistics">
+      <div class="stat">Total reports<strong id="totalCount">0</strong></div>
+      <div class="stat">Pending<strong id="pendingCount">0</strong></div>
+      <div class="stat">In progress<strong id="progressCount">0</strong></div>
+      <div class="stat">Completed<strong id="completedCount">0</strong></div>
+      <div class="stat">Not completed<strong id="notCompletedCount">0</strong></div>
+    </section>
+    <section class="panel tracker-panel">
+      <h2>Track your complaint</h2>
+      <p class="muted">Enter the complaint ID you received after submitting a report to see its latest status and update history.</p>
+      <form id="trackForm" class="track-form">
+        <div><label for="trackId">Complaint ID</label><input id="trackId" required placeholder="e.g. SB-1234567-42" /></div>
+        <button class="secondary" type="submit">Track complaint</button>
+      </form>
+      <div id="trackResult" class="track-result" aria-live="polite"></div>
+    </section>
+    <div class="layout">
+      <section class="panel">
+        <h2>Report a waste issue</h2>
+        <p class="muted">Enter a real or sample location to create a demo complaint.</p>
+        <form id="reportForm">
+          <label for="reporter">Your name</label>
+          <div class="field-voice"><input id="reporter" required maxlength="60" placeholder="e.g. Asha" /><button class="voice-btn" type="button" data-voice-for="reporter">🎙 Speak</button></div>
+          <label for="location">Location / landmark</label>
+          <div class="field-voice"><input id="location" required maxlength="120" placeholder="e.g. Main gate, Block A" /><button class="voice-btn" type="button" data-voice-for="location">🎙 Speak</button></div>
+          <label for="wasteType">Waste issue</label>
+          <select id="wasteType" required>
+            <option value="Overflowing bin">Overflowing bin</option>
+            <option value="Water Issue">Water issue / leakage / stagnant water</option>
+            <option value="Illegal dumping">Illegal dumping</option>
+            <option value="Missed collection">Missed collection</option>
+            <option value="Waste segregation">Waste segregation issue</option>
+          </select>
+          <label for="description">Description</label>
+          <div class="field-voice"><textarea id="description" required maxlength="400" placeholder="Briefly describe the issue"></textarea><button class="voice-btn" type="button" data-voice-for="description">🎙 Speak</button></div>
+          <label for="issuePhoto">Before collection photo (required) *</label>
+          <input class="photo-input" id="issuePhoto" type="file" accept="image/*" required aria-describedby="photoHelp" />
+          <p id="photoHelp" class="muted">Choose a photo of the waste or water issue. Image limit: 1 MB.</p>
+          <img id="photoPreview" class="photo-preview" alt="Preview of selected issue photo" />
+          <button class="secondary" id="removePhoto" type="button" hidden>Remove photo</button>
+          <button class="primary" type="submit">Submit complaint</button>
+        </form>
+        <p class="muted">Demo note: reports are saved in this browser using localStorage. This is not a secure multi-user production system.</p>
+      </section>
+      <section class="panel">
+        <h2>Administrator complaint management</h2>
+        <div class="toolbar">
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="All">All statuses</option><option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Not Completed">Not Completed</option>
+          </select>
+          <button class="secondary" id="loadSample" type="button">Load sample reports</button>
+          <button class="danger" id="clearAll" type="button">Clear demo data</button>
+        </div>
+        <div id="complaintList" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <footer>SmartBin 360 Administrator Portal · Demo only; this page has no secure administrator login.</footer>
+  <script>
+    const STORAGE_KEY = "smartbin360_complaints_v1";
+    const statuses = ["Pending", "In Progress", "Completed", "Not Completed"];
+    const $ = (id) => document.getElementById(id);
+    function readComplaints() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+      catch { return []; }
+    }
+    function saveComplaints(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+    function makeId() {
+      return "SB-" + Date.now().toString().slice(-7) + "-" + Math.floor(Math.random() * 90 + 10);
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[ch]);
+    }
+    function formatTimestamp(value) {
+      if (!value) return "Not recorded";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+    }
+    function addHistory(item, title, detail, timestamp = new Date().toISOString()) {
+      if (!Array.isArray(item.history)) item.history = [];
+      item.history.push({ title, detail, timestamp });
+      item.updatedAt = formatTimestamp(timestamp);
+    }
+    function renderTracker(item) {
+      const result = $("trackResult");
+      if (!item) {
+        result.innerHTML = '<div class="empty">No matching complaint found in this browser. Check the ID or open the same browser where the report was submitted.</div>';
+        return;
+      }
+      const history = Array.isArray(item.history) && item.history.length ? item.history :
+        [{ title: "Complaint submitted", detail: "Current status: " + item.status, timestamp: item.createdAt }];
+      result.innerHTML = `
+        <div class="track-summary">
+          <div class="complaint-top"><h3>${escapeHtml(item.type)} · ${escapeHtml(item.id)}</h3><span class="pill ${item.status.toLowerCase().replace(" ", "-")}">${escapeHtml(item.status)}</span></div>
+          <p><strong>Location:</strong> ${escapeHtml(item.location)}</p>
+          <p>${escapeHtml(item.description)}</p>
+          <p class="muted">Assigned collector: ${escapeHtml(item.collector || "Not yet assigned")}</p>
+          <p class="muted">Officer viewed: ${escapeHtml(item.seenAt || "Not yet marked as seen")}</p>
+          <h3>Complaint timeline</h3>
+          <ul class="timeline">${history.map(event => `<li><strong>${escapeHtml(event.title)}</strong><div>${escapeHtml(event.detail || "")}</div><time>${escapeHtml(formatTimestamp(event.timestamp))}</time></li>`).join("")}</ul>
+        </div>`;
+    }
+    function renderPhotos(item) {
+      const before = item.photoDataUrl
+        ? '<img class="complaint-photo" src="' + escapeHtml(item.photoDataUrl) + '" alt="Before collection for ' + escapeHtml(item.id) + '" loading="lazy">'
+        : '<p class="muted">No before photo saved</p>';
+      const after = item.afterPhotoDataUrl
+        ? '<img class="complaint-photo" src="' + escapeHtml(item.afterPhotoDataUrl) + '" alt="After collection for ' + escapeHtml(item.id) + '" loading="lazy">'
+        : '<p class="muted">Not uploaded yet</p>';
+      return '<div class="photo-comparison"><div><strong>Before collection *</strong>' + before + '</div><div><strong>After collection *</strong>' + after +
+        '<label for="after-photo-' + escapeHtml(item.id) + '">Upload after photo (required to complete)</label>' +
+        '<input class="photo-input after-photo-input" id="after-photo-' + escapeHtml(item.id) + '" data-id="' + escapeHtml(item.id) + '" type="file" accept="image/*" aria-label="Upload after-collection photo for ' + escapeHtml(item.id) + '">' +
+        '<p class="muted">Image limit: 1 MB.</p></div></div>';
+    }
+    function render() {
+      const all = readComplaints();
+      $("totalCount").textContent = all.length;
+      $("pendingCount").textContent = all.filter(x => x.status === "Pending").length;
+      $("progressCount").textContent = all.filter(x => x.status === "In Progress").length;
+      $("completedCount").textContent = all.filter(x => x.status === "Completed").length;
+      $("notCompletedCount").textContent = all.filter(x => x.status === "Not Completed").length;
+      const filter = $("statusFilter").value;
+      const shown = all.filter(x => filter === "All" || x.status === filter);
+      const list = $("complaintList");
+      if (!shown.length) {
+        list.innerHTML = '<div class="empty">No reports to display. Submit a complaint or load sample reports.</div>';
+        return;
+      }
+      list.innerHTML = shown.slice().reverse().map(item => {
+        const cssStatus = item.status.toLowerCase().replace(" ", "-");
+        return `
+          <article class="complaint">
+            <div class="complaint-top"><div>
+              <h3>${escapeHtml(item.type)} <span class="muted">· ${escapeHtml(item.id)}</span></h3>
+              <div><strong>Location:</strong> ${escapeHtml(item.location)}</div>
+            </div><span class="pill ${cssStatus}">${escapeHtml(item.status)}</span></div>
+            <p>${escapeHtml(item.description)}</p>
+            ${renderPhotos(item)}
+            <div class="muted">Reported by ${escapeHtml(item.reporter)} · ${escapeHtml(item.createdAt)}</div>
+            <div class="muted">${item.seenAt ? "Seen by officer: " + escapeHtml(item.seenAt) : "Not yet marked as seen by an officer"}</div>
+            <div class="actions">
+              <label for="worker-${item.id}" style="margin:0">Assign collector</label>
+              <select id="worker-${item.id}" aria-label="Assign collector for ${escapeHtml(item.id)}">
+                <option value="">Unassigned</option>
+                ${["Collector Ravi", "Collector Meena", "Collector Arun"].map(name =>
+                  `<option value="${name}" ${item.collector === name ? "selected" : ""}>${name}</option>`
+                ).join("")}
+              </select>
+              <button class="secondary" data-action="save" data-id="${item.id}">Save</button>
+              <button class="secondary" data-action="seen" data-id="${item.id}" ${item.seenAt ? "disabled" : ""}>${item.seenAt ? "Seen by officer ✓" : "Mark as seen"}</button>
+              <select id="status-${item.id}" aria-label="Status for ${escapeHtml(item.id)}">
+                ${statuses.map(s => `<option ${item.status === s ? "selected" : ""}>${s}</option>`).join("")}
+              </select>
+              <button class="secondary" data-action="status" data-id="${item.id}">Update status</button>
+            </div>
+            <div class="muted">${item.collector ? "Assigned to: " + escapeHtml(item.collector) : "Not yet assigned"}</div>
+            <div class="muted">Last updated: ${escapeHtml(item.updatedAt || item.createdAt)}</div>
+          </article>`;
+      }).join("");
+    }
+    const photoInput = $("issuePhoto");
+    const photoPreview = $("photoPreview");
+    const removePhotoButton = $("removePhoto");
+    let selectedPhotoDataUrl = "";
+
+    photoInput.addEventListener("change", () => {
+      const file = photoInput.files && photoInput.files[0];
+      selectedPhotoDataUrl = "";
+      photoPreview.removeAttribute("src");
+      photoPreview.style.display = "none";
+      removePhotoButton.hidden = true;
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        alert("Please choose an image file."); photoInput.value = ""; return;
+      }
+      if (file.size > 1024 * 1024) {
+        alert("Please choose an image smaller than 1 MB."); photoInput.value = ""; return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        selectedPhotoDataUrl = String(reader.result || "");
+        photoPreview.src = selectedPhotoDataUrl;
+        photoPreview.style.display = "block";
+        removePhotoButton.hidden = false;
+      };
+      reader.onerror = () => alert("The photo could not be read. Please try another image.");
+      reader.readAsDataURL(file);
+    });
+
+    removePhotoButton.addEventListener("click", () => {
+      selectedPhotoDataUrl = "";
+      photoInput.value = "";
+      photoPreview.removeAttribute("src");
+      photoPreview.style.display = "none";
+      removePhotoButton.hidden = true;
+    });
+
+    $("reportForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!selectedPhotoDataUrl) {
+        alert("A before-collection photo is required. Please select a photo before submitting.");
+        photoInput.focus();
+        return;
+      }
+      const items = readComplaints();
+      const createdISO = new Date().toISOString();
+      const createdDisplay = new Date(createdISO).toLocaleString();
+      const complaint = {
+        id: makeId(), reporter: $("reporter").value.trim(),
+        location: $("location").value.trim(), type: $("wasteType").value,
+        description: $("description").value.trim(), photoDataUrl: selectedPhotoDataUrl, afterPhotoDataUrl: "",
+        status: "Pending", collector: "", createdAt: createdDisplay, createdAtISO: createdISO, updatedAt: createdDisplay, seenAt: "", history: []
+      };
+      addHistory(complaint, "Complaint submitted", "Your report was received and is awaiting officer review.", createdISO);
+      items.push(complaint);
+      try {
+        saveComplaints(items);
+        event.target.reset();
+        selectedPhotoDataUrl = "";
+        photoPreview.removeAttribute("src");
+        photoPreview.style.display = "none";
+        removePhotoButton.hidden = true;
+        render();
+        alert("Complaint submitted successfully!");
+      } catch (error) {
+        alert("Could not save this report. Your browser storage may be full. Try a smaller photo or remove older demo reports.");
+      }
+    });
+    $("complaintList").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const items = readComplaints();
+      const item = items.find(x => x.id === button.dataset.id);
+      if (!item) return;
+      if (button.dataset.action === "save") {
+        const newCollector = $("worker-" + item.id).value;
+        if (item.collector !== newCollector) {
+          item.collector = newCollector;
+          addHistory(item, "Collector assignment updated", newCollector ? "Assigned to " + newCollector + "." : "Collector assignment removed.");
+        }
+      } else if (button.dataset.action === "seen") {
+        if (!item.seenAt) {
+          const now = new Date();
+          item.seenAt = now.toLocaleString();
+          addHistory(item, "Seen by officer", "An officer marked this complaint as viewed.", now.toISOString());
+        }
+      } else if (button.dataset.action === "status") {
+        const newStatus = $("status-" + item.id).value;
+        if (newStatus === "Completed" && !item.afterPhotoDataUrl) {
+          alert("Upload the required after-collection photo before marking this complaint Completed.");
+          $("after-photo-" + item.id).focus();
+          return;
+        }
+        if (item.status !== newStatus) {
+          const oldStatus = item.status;
+          item.status = newStatus;
+          addHistory(item, "Status changed", oldStatus + " → " + newStatus);
+        }
+      }
+      saveComplaints(items);
+      if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
+      render();
+    });
+    $("complaintList").addEventListener("change", (event) => {
+      const input = event.target.closest("input.after-photo-input");
+      if (!input) return;
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) { alert("Please choose an image file."); input.value = ""; return; }
+      if (file.size > 1024 * 1024) { alert("Please choose an image smaller than 1 MB."); input.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const items = readComplaints();
+        const item = items.find(x => x.id === input.dataset.id);
+        if (!item) return;
+        item.afterPhotoDataUrl = String(reader.result || "");
+        addHistory(item, "After-collection photo uploaded", "Photo evidence of the cleaned location was added.");
+        try {
+          saveComplaints(items);
+          render();
+          if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
+        } catch (error) {
+          alert("Could not save the photo. Browser storage may be full. Try a smaller image or clear old demo reports.");
+        }
+      };
+      reader.onerror = () => alert("The after-collection photo could not be read. Please try another image.");
+      reader.readAsDataURL(file);
+    });
+
+    $("trackForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const wantedId = $("trackId").value.trim().toUpperCase();
+      renderTracker(readComplaints().find(item => item.id.toUpperCase() === wantedId));
+    });
+    $("statusFilter").addEventListener("change", render);
+    function makeSample(reporter, location, type, description, status, collector) {
+      const now = new Date();
+      const item = { id: makeId(), reporter, location, type, description, status, collector, createdAt: now.toLocaleString(), createdAtISO: now.toISOString(), updatedAt: now.toLocaleString(), seenAt: "", history: [] };
+      addHistory(item, "Complaint submitted", "Sample report created for demonstration.", now.toISOString());
+      if (status !== "Pending") addHistory(item, "Status changed", "Pending → " + status, now.toISOString());
+      return item;
+    }
+    $("loadSample").addEventListener("click", () => {
+      const items = readComplaints();
+      if (items.length && !confirm("Add sample reports to the existing list?")) return;
+      items.push(
+        makeSample("Asha", "College Main Gate", "Overflowing bin", "The public bin is almost full and waste is beside it.", "Pending", ""),
+        makeSample("Rahul", "Bus Stop, Sector 2", "Missed collection", "Waste has not been collected today.", "In Progress", "Collector Ravi"),
+        makeSample("Priya", "Park Entrance", "Illegal dumping", "A pile of household waste needs pickup.", "Completed", "Collector Meena")
+      );
+      saveComplaints(items); render();
+    });
+    $("clearAll").addEventListener("click", () => {
+      if (confirm("Delete all SmartBin 360 demo reports from this browser?")) {
+        localStorage.removeItem(STORAGE_KEY); render();
+      }
+    });
+    render();
+
+    // Interface localization and browser voice support. No external API key is required.
+    const LANGUAGES = {
+      en: {locale:"en-IN",font:"Arial, sans-serif"},
+      te: {locale:"te-IN",font:'"Noto Sans Telugu", sans-serif'},
+      hi: {locale:"hi-IN",font:'"Noto Sans Devanagari", sans-serif'},
+      ta: {locale:"ta-IN",font:'"Noto Sans Tamil", sans-serif'},
+      kn: {locale:"kn-IN",font:'"Noto Sans Kannada", sans-serif'},
+      ml: {locale:"ml-IN",font:'"Noto Sans Malayalam", sans-serif'},
+      mr: {locale:"mr-IN",font:'"Noto Sans Devanagari", sans-serif'},
+      bn: {locale:"bn-IN",font:'"Noto Sans Bengali", sans-serif'},
+      gu: {locale:"gu-IN",font:'"Noto Sans Gujarati", sans-serif'},
+      pa: {locale:"pa-IN",font:'"Noto Sans Gurmukhi", sans-serif'},
+      or: {locale:"or-IN",font:'"Noto Sans Oriya", sans-serif'},
+      ur: {locale:"ur-IN",font:'"Noto Nastaliq Urdu", serif'}
+    };
+    const UI_TEXT = {
+      te: {
+        "Total reports":"మొత్తం నివేదికలు","Pending":"పెండింగ్‌లో ఉంది","In progress":"ప్రగతిలో ఉంది","Completed":"పూర్తయింది","Not completed":"పూర్తి కాలేదు",
+        "Track your complaint":"మీ ఫిర్యాదును ట్రాక్ చేయండి","Enter the complaint ID you received after submitting a report to see its latest status and update history.":"నివేదిక సమర్పించిన తర్వాత వచ్చిన ఫిర్యాదు ID నమోదు చేసి స్థితి, చరిత్రను చూడండి.",
+        "Complaint ID":"ఫిర్యాదు ID","Track complaint":"ఫిర్యాదును ట్రాక్ చేయండి","Report a waste issue":"వ్యర్థ సమస్యను నివేదించండి","Enter a real or sample location to create a demo complaint.":"డెమో ఫిర్యాదు కోసం స్థలం నమోదు చేయండి.",
+        "Your name":"మీ పేరు","Location / landmark":"ప్రదేశం / గుర్తు","Waste issue":"వ్యర్థ సమస్య","Overflowing bin":"నిండిన చెత్తబుట్ట","Water issue / leakage / stagnant water":"నీటి సమస్య / లీకేజీ / నిలిచిన నీరు","Illegal dumping":"అక్రమంగా చెత్త వేయడం","Missed collection":"చెత్త సేకరణ జరగలేదు","Waste segregation issue":"వ్యర్థాల వేర్పాటు సమస్య",
+        "Description":"వివరణ","Briefly describe the issue":"సమస్యను సంక్షిప్తంగా వివరించండి","Before collection photo (required) *":"సేకరణకు ముందు ఫోటో (తప్పనిసరి) *","Choose a photo of the waste or water issue. Image limit: 1 MB.":"చెత్త లేదా నీటి సమస్య ఫోటో ఎంచుకోండి. పరిమితి: 1 MB.",
+        "Remove photo":"ఫోటో తొలగించండి","Submit complaint":"ఫిర్యాదు సమర్పించండి","Collection management dashboard":"సేకరణ నిర్వహణ డ్యాష్‌బోర్డ్","All statuses":"అన్ని స్థితులు","Load sample reports":"నమూనా నివేదికలు లోడ్ చేయండి","Clear demo data":"డెమో డేటా తొలగించండి",
+        "Assign collector":"సేకరణ కార్మికుడిని కేటాయించండి","Save":"సేవ్ చేయండి","Mark as seen":"చూసినట్లు గుర్తించండి","Update status":"స్థితిని నవీకరించండి","Track by Complaint ID":"ఫిర్యాదు ID ద్వారా ట్రాక్ చేయండి",
+        "Read page aloud":"పేజీని శబ్దంగా చదవండి","🎙 Speak":"🎙 మాట్లాడండి","Unassigned":"కేటాయించలేదు","Not yet assigned":"ఇంకా కేటాయించలేదు","Not uploaded yet":"ఇంకా అప్‌లోడ్ కాలేదు",
+        "No reports to display. Submit a complaint or load sample reports.":"చూపించడానికి నివేదికలు లేవు. ఫిర్యాదు సమర్పించండి లేదా నమూనా నివేదికలు లోడ్ చేయండి.",
+        "Complaint timeline":"ఫిర్యాదు కాలక్రమం","Location:":"ప్రదేశం:","Assigned collector:":"కేటాయించిన కార్మికుడు:","Officer viewed:":"అధికారి చూశారు:","Reported by":"నివేదించినవారు","Last updated:":"చివరిగా నవీకరించబడింది:"
+      },
+      hi: {
+        "Total reports":"कुल रिपोर्ट","Pending":"लंबित","In progress":"प्रगति पर","Completed":"पूरा हुआ","Not completed":"पूरा नहीं हुआ",
+        "Track your complaint":"अपनी शिकायत ट्रैक करें","Enter the complaint ID you received after submitting a report to see its latest status and update history.":"रिपोर्ट जमा करने के बाद मिला शिकायत ID दर्ज करके स्थिति और इतिहास देखें।",
+        "Complaint ID":"शिकायत ID","Track complaint":"शिकायत ट्रैक करें","Report a waste issue":"कचरे की समस्या रिपोर्ट करें","Enter a real or sample location to create a demo complaint.":"डेमो शिकायत के लिए स्थान दर्ज करें।",
+        "Your name":"आपका नाम","Location / landmark":"स्थान / पहचान-चिह्न","Waste issue":"कचरे की समस्या","Overflowing bin":"कूड़ेदान भरा हुआ","Water issue / leakage / stagnant water":"पानी की समस्या / रिसाव / जमा पानी","Illegal dumping":"अवैध कचरा फेंकना","Missed collection":"कचरा नहीं उठाया गया","Waste segregation issue":"कचरा अलग करने की समस्या",
+        "Description":"विवरण","Briefly describe the issue":"समस्या का संक्षिप्त विवरण दें","Before collection photo (required) *":"संग्रह से पहले की फोटो (अनिवार्य) *","Choose a photo of the waste or water issue. Image limit: 1 MB.":"कचरे या पानी की समस्या की फोटो चुनें। सीमा: 1 MB।",
+        "Remove photo":"फोटो हटाएँ","Submit complaint":"शिकायत जमा करें","Collection management dashboard":"संग्रह प्रबंधन डैशबोर्ड","All statuses":"सभी स्थितियाँ","Load sample reports":"नमूना रिपोर्ट लोड करें","Clear demo data":"डेमो डेटा हटाएँ",
+        "Assign collector":"कलेक्टर नियुक्त करें","Save":"सहेजें","Mark as seen":"देखा गया चिह्नित करें","Update status":"स्थिति अपडेट करें",
+        "Read page aloud":"पेज को आवाज़ में पढ़ें","🎙 Speak":"🎙 बोलें","Unassigned":"नियुक्त नहीं","Not yet assigned":"अभी नियुक्त नहीं","Not uploaded yet":"अभी अपलोड नहीं हुआ",
+        "No reports to display. Submit a complaint or load sample reports.":"दिखाने के लिए कोई रिपोर्ट नहीं है। शिकायत जमा करें या नमूना रिपोर्ट लोड करें।",
+        "Complaint timeline":"शिकायत समयरेखा","Location:":"स्थान:","Assigned collector:":"नियुक्त कलेक्टर:","Officer viewed:":"अधिकारी ने देखा:","Reported by":"रिपोर्ट करने वाले","Last updated:":"अंतिम अपडेट:"
+      },
+      ta: {"Total reports":"மொத்த அறிக்கைகள்","Pending":"நிலுவையில்","In progress":"நடைபெறுகிறது","Completed":"முடிந்தது","Not completed":"முடிக்கப்படவில்லை","Track your complaint":"உங்கள் புகாரைக் கண்காணிக்கவும்","Complaint ID":"புகார் ID","Track complaint":"புகாரைக் கண்காணி","Report a waste issue":"கழிவு பிரச்சினையைப் புகாரளிக்கவும்","Your name":"உங்கள் பெயர்","Location / landmark":"இடம் / அடையாளம்","Waste issue":"கழிவு பிரச்சினை","Description":"விளக்கம்","Submit complaint":"புகாரைச் சமர்ப்பிக்கவும்","Collection management dashboard":"சேகரிப்பு மேலாண்மை டாஷ்போர்டு","All statuses":"அனைத்து நிலைகள்","Load sample reports":"மாதிரி அறிக்கைகளை ஏற்று","Clear demo data":"டெமோ தரவை அழி","Assign collector":"சேகரிப்பாளரை ஒதுக்கு","Save":"சேமி","Mark as seen":"பார்த்ததாகக் குறி","Update status":"நிலையைப் புதுப்பி","Read page aloud":"பக்கத்தை ஒலியாகப் படி","🎙 Speak":"🎙 பேசவும்"},
+      kn: {"Total reports":"ಒಟ್ಟು ವರದಿಗಳು","Pending":"ಬಾಕಿ ಇದೆ","In progress":"ಪ್ರಗತಿಯಲ್ಲಿದೆ","Completed":"ಪೂರ್ಣಗೊಂಡಿದೆ","Not completed":"ಪೂರ್ಣಗೊಂಡಿಲ್ಲ","Track your complaint":"ನಿಮ್ಮ ದೂರನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ","Complaint ID":"ದೂರು ID","Track complaint":"ದೂರನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ","Report a waste issue":"ತ್ಯಾಜ್ಯ ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ","Your name":"ನಿಮ್ಮ ಹೆಸರು","Location / landmark":"ಸ್ಥಳ / ಗುರುತು","Waste issue":"ತ್ಯಾಜ್ಯ ಸಮಸ್ಯೆ","Description":"ವಿವರಣೆ","Submit complaint":"ದೂರು ಸಲ್ಲಿಸಿ","Collection management dashboard":"ಸಂಗ್ರಹ ನಿರ್ವಹಣಾ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್","All statuses":"ಎಲ್ಲಾ ಸ್ಥಿತಿಗಳು","Load sample reports":"ಮಾದರಿ ವರದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಿ","Clear demo data":"ಡೆಮೋ ಡೇಟಾ ಅಳಿಸಿ","Assign collector":"ಸಂಗ್ರಹಕಾರರನ್ನು ನಿಯೋಜಿಸಿ","Save":"ಉಳಿಸಿ","Mark as seen":"ನೋಡಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ","Update status":"ಸ್ಥಿತಿ ನವೀಕರಿಸಿ","Read page aloud":"ಪುಟವನ್ನು ಧ್ವನಿಯಾಗಿ ಓದಿ","🎙 Speak":"🎙 ಮಾತನಾಡಿ"},
+      ml: {"Total reports":"ആകെ റിപ്പോർട്ടുകൾ","Pending":"തീർപ്പാക്കാനുണ്ട്","In progress":"പുരോഗതിയിൽ","Completed":"പൂർത്തിയായി","Not completed":"പൂർത്തിയായില്ല","Track your complaint":"പരാതി ട്രാക്ക് ചെയ്യുക","Complaint ID":"പരാതി ID","Track complaint":"പരാതി ട്രാക്ക് ചെയ്യുക","Report a waste issue":"മാലിന്യ പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക","Your name":"നിങ്ങളുടെ പേര്","Location / landmark":"സ്ഥലം / അടയാളം","Waste issue":"മാലിന്യ പ്രശ്നം","Description":"വിവരണം","Submit complaint":"പരാതി സമർപ്പിക്കുക","Collection management dashboard":"ശേഖരണ മാനേജ്മെന്റ് ഡാഷ്ബോർഡ്","All statuses":"എല്ലാ നിലകളും","Load sample reports":"സാമ്പിൾ റിപ്പോർട്ടുകൾ ലോഡ് ചെയ്യുക","Clear demo data":"ഡെമോ ഡാറ്റ മായ്ക്കുക","Assign collector":"ശേഖരണ തൊഴിലാളിയെ നിയോഗിക്കുക","Save":"സേവ് ചെയ്യുക","Mark as seen":"കണ്ടതായി അടയാളപ്പെടുത്തുക","Update status":"നില പുതുക്കുക","Read page aloud":"പേജ് ശബ്ദമായി വായിക്കുക","🎙 Speak":"🎙 സംസാരിക്കുക"},
+      mr: {"Total reports":"एकूण अहवाल","Pending":"प्रलंबित","In progress":"प्रगतीत","Completed":"पूर्ण","Not completed":"पूर्ण नाही","Track your complaint":"तुमची तक्रार ट्रॅक करा","Complaint ID":"तक्रार ID","Track complaint":"तक्रार ट्रॅक करा","Report a waste issue":"कचऱ्याची समस्या नोंदवा","Your name":"तुमचे नाव","Location / landmark":"ठिकाण / खूण","Waste issue":"कचऱ्याची समस्या","Description":"वर्णन","Submit complaint":"तक्रार सबमिट करा","Collection management dashboard":"संकलन व्यवस्थापन डॅशबोर्ड","All statuses":"सर्व स्थिती","Load sample reports":"नमुना अहवाल लोड करा","Clear demo data":"डेमो डेटा हटवा","Assign collector":"कलेक्टर नियुक्त करा","Save":"जतन करा","Mark as seen":"पाहिले असे चिन्हांकित करा","Update status":"स्थिती अद्यतनित करा","Read page aloud":"पान मोठ्याने वाचा","🎙 Speak":"🎙 बोला"},
+      bn: {"Total reports":"মোট রিপোর্ট","Pending":"বাকি","In progress":"চলছে","Completed":"সম্পন্ন","Not completed":"সম্পন্ন হয়নি","Track your complaint":"আপনার অভিযোগ ট্র্যাক করুন","Complaint ID":"অভিযোগ ID","Track complaint":"অভিযোগ ট্র্যাক করুন","Report a waste issue":"বর্জ্য সমস্যার রিপোর্ট করুন","Your name":"আপনার নাম","Location / landmark":"স্থান / চিহ্ন","Waste issue":"বর্জ্য সমস্যা","Description":"বিবরণ","Submit complaint":"অভিযোগ জমা দিন","Collection management dashboard":"সংগ্রহ ব্যবস্থাপনা ড্যাশবোর্ড","All statuses":"সব অবস্থা","Load sample reports":"নমুনা রিপোর্ট লোড করুন","Clear demo data":"ডেমো ডেটা মুছুন","Assign collector":"সংগ্রাহক নিয়োগ করুন","Save":"সংরক্ষণ করুন","Mark as seen":"দেখা হয়েছে চিহ্নিত করুন","Update status":"অবস্থা আপডেট করুন","Read page aloud":"পাতা জোরে পড়ুন","🎙 Speak":"🎙 বলুন"},
+      gu: {"Total reports":"કુલ અહેવાલો","Pending":"બાકી","In progress":"પ્રગતિમાં","Completed":"પૂર્ણ","Not completed":"પૂર્ણ નથી","Track your complaint":"તમારી ફરિયાદ ટ્રૅક કરો","Complaint ID":"ફરિયાદ ID","Track complaint":"ફરિયાદ ટ્રૅક કરો","Report a waste issue":"કચરાની સમસ્યા નોંધાવો","Your name":"તમારું નામ","Location / landmark":"સ્થળ / નિશાની","Waste issue":"કચરાની સમસ્યા","Description":"વર્ણન","Submit complaint":"ફરિયાદ સબમિટ કરો","Collection management dashboard":"સંગ્રહ વ્યવસ્થાપન ડેશબોર્ડ","All statuses":"બધી સ્થિતિઓ","Load sample reports":"નમૂના અહેવાલો લોડ કરો","Clear demo data":"ડેમો ડેટા સાફ કરો","Assign collector":"કલેક્ટર સોંપો","Save":"સાચવો","Mark as seen":"જોયું તરીકે ચિહ્નિત કરો","Update status":"સ્થિતિ અપડેટ કરો","Read page aloud":"પાનું અવાજમાં વાંચો","🎙 Speak":"🎙 બોલો"},
+      pa: {"Total reports":"ਕੁੱਲ ਰਿਪੋਰਟਾਂ","Pending":"ਬਕਾਇਆ","In progress":"ਜਾਰੀ ਹੈ","Completed":"ਪੂਰਾ ਹੋਇਆ","Not completed":"ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ","Track your complaint":"ਆਪਣੀ ਸ਼ਿਕਾਇਤ ਟ੍ਰੈਕ ਕਰੋ","Complaint ID":"ਸ਼ਿਕਾਇਤ ID","Track complaint":"ਸ਼ਿਕਾਇਤ ਟ੍ਰੈਕ ਕਰੋ","Report a waste issue":"ਕੂੜੇ ਦੀ ਸਮੱਸਿਆ ਦਰਜ ਕਰੋ","Your name":"ਤੁਹਾਡਾ ਨਾਮ","Location / landmark":"ਥਾਂ / ਨਿਸ਼ਾਨ","Waste issue":"ਕੂੜੇ ਦੀ ਸਮੱਸਿਆ","Description":"ਵੇਰਵਾ","Submit complaint":"ਸ਼ਿਕਾਇਤ ਜਮ੍ਹਾਂ ਕਰੋ","Collection management dashboard":"ਕੂੜਾ ਇਕੱਠਾ ਕਰਨ ਦਾ ਡੈਸ਼ਬੋਰਡ","All statuses":"ਸਾਰੀਆਂ ਸਥਿਤੀਆਂ","Load sample reports":"ਨਮੂਨਾ ਰਿਪੋਰਟਾਂ ਲੋਡ ਕਰੋ","Clear demo data":"ਡੈਮੋ ਡਾਟਾ ਸਾਫ਼ ਕਰੋ","Assign collector":"ਕਲੈਕਟਰ ਨਿਯੁਕਤ ਕਰੋ","Save":"ਸੰਭਾਲੋ","Mark as seen":"ਵੇਖਿਆ ਚਿੰਨ੍ਹਿਤ ਕਰੋ","Update status":"ਸਥਿਤੀ ਅੱਪਡੇਟ ਕਰੋ","Read page aloud":"ਪੰਨਾ ਉੱਚੀ ਆਵਾਜ਼ ਵਿੱਚ ਪੜ੍ਹੋ","🎙 Speak":"🎙 ਬੋਲੋ"},
+      or: {"Total reports":"ମୋଟ ରିପୋର୍ଟ","Pending":"ବିଚାରାଧୀନ","In progress":"ଚାଲୁଛି","Completed":"ସମ୍ପୂର୍ଣ୍ଣ","Not completed":"ସମ୍ପୂର୍ଣ୍ଣ ହୋଇନାହିଁ","Track your complaint":"ଆପଣଙ୍କ ଅଭିଯୋଗ ଟ୍ରାକ୍ କରନ୍ତୁ","Complaint ID":"ଅଭିଯୋଗ ID","Track complaint":"ଅଭିଯୋଗ ଟ୍ରାକ୍ କରନ୍ତୁ","Report a waste issue":"ଆବର୍ଜନା ସମସ୍ୟା ରିପୋର୍ଟ କରନ୍ତୁ","Your name":"ଆପଣଙ୍କ ନାମ","Location / landmark":"ସ୍ଥାନ / ଚିହ୍ନ","Waste issue":"ଆବର୍ଜନା ସମସ୍ୟା","Description":"ବର୍ଣ୍ଣନା","Submit complaint":"ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ","Collection management dashboard":"ସଂଗ୍ରହ ପରିଚାଳନା ଡ୍ୟାସବୋର୍ଡ","All statuses":"ସମସ୍ତ ସ୍ଥିତି","Load sample reports":"ନମୁନା ରିପୋର୍ଟ ଲୋଡ୍ କରନ୍ତୁ","Clear demo data":"ଡେମୋ ଡାଟା ହଟାନ୍ତୁ","Assign collector":"ସଂଗ୍ରହକାରୀ ନିଯୁକ୍ତ କରନ୍ତୁ","Save":"ସଂରକ୍ଷଣ କରନ୍ତୁ","Mark as seen":"ଦେଖାଯାଇଛି ବୋଲି ଚିହ୍ନଟ କରନ୍ତୁ","Update status":"ସ୍ଥିତି ଅପଡେଟ୍ କରନ୍ତୁ","Read page aloud":"ପୃଷ୍ଠାକୁ ଶୁଣାଇ ପଢ଼ନ୍ତୁ","🎙 Speak":"🎙 କୁହନ୍ତୁ"},
+      ur: {"Total reports":"کل رپورٹیں","Pending":"زیر التوا","In progress":"جاری ہے","Completed":"مکمل","Not completed":"مکمل نہیں","Track your complaint":"اپنی شکایت ٹریک کریں","Complaint ID":"شکایت ID","Track complaint":"شکایت ٹریک کریں","Report a waste issue":"کچرے کا مسئلہ رپورٹ کریں","Your name":"آپ کا نام","Location / landmark":"مقام / نشانی","Waste issue":"کچرے کا مسئلہ","Description":"تفصیل","Submit complaint":"شکایت جمع کریں","Collection management dashboard":"کچرا جمع کرنے کا ڈیش بورڈ","All statuses":"تمام حالتیں","Load sample reports":"نمونہ رپورٹس لوڈ کریں","Clear demo data":"ڈیمو ڈیٹا صاف کریں","Assign collector":"کلیکٹر مقرر کریں","Save":"محفوظ کریں","Mark as seen":"دیکھا ہوا نشان زد کریں","Update status":"حالت اپ ڈیٹ کریں","Read page aloud":"صفحہ آواز میں پڑھیں","🎙 Speak":"🎙 بولیں"}
+    };
+    let activeLanguage = localStorage.getItem("smartbin360_language") || "en";
+    const originalTextNodes = new WeakMap();
+    function translateTextNode(node) {
+      if (!node || !node.nodeValue || !node.nodeValue.trim()) return;
+      if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.nodeValue);
+      const original = originalTextNodes.get(node);
+      const clean = original.trim();
+      const translated = (UI_TEXT[activeLanguage] || {})[clean];
+      if (activeLanguage === "en") node.nodeValue = original;
+      else if (translated) node.nodeValue = original.replace(clean, translated);
+    }
+    function translatePage() {
+      document.documentElement.lang = activeLanguage;
+      document.body.lang = activeLanguage;
+      document.body.style.fontFamily = LANGUAGES[activeLanguage].font;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) translateTextNode(node);
+      document.querySelectorAll("[placeholder]").forEach(el => {
+        if (!el.dataset.originalPlaceholder) el.dataset.originalPlaceholder = el.placeholder;
+        const val = el.dataset.originalPlaceholder;
+        el.placeholder = activeLanguage === "en" ? val : ((UI_TEXT[activeLanguage] || {})[val] || val);
+      });
+    }
+    $("languageSelect").value = activeLanguage;
+    $("languageSelect").addEventListener("change", () => {
+      activeLanguage = $("languageSelect").value;
+      localStorage.setItem("smartbin360_language", activeLanguage);
+      translatePage();
+      $("voiceStatus").textContent = activeLanguage === "en" ? "Language set to English." : "Language changed.";
+    });
+    const speechLocales = Object.fromEntries(Object.entries(LANGUAGES).map(([key, value]) => [key, value.locale]));
+    function startVoiceInput(fieldId, button) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        $("voiceStatus").textContent = "Voice input is not supported in this browser. Try the latest Chrome or Edge.";
+        alert("Voice input is not supported by this browser. Please use the latest Chrome or Edge.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = speechLocales[activeLanguage] || "en-IN";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      button.classList.add("listening");
+      button.textContent = "🔴 Listening…";
+      $("voiceStatus").textContent = "Listening… Please speak now.";
+      recognition.onresult = event => {
+        const transcript = event.results[0][0].transcript;
+        const field = $(fieldId);
+        field.value = field.value.trim() ? field.value.trim() + " " + transcript : transcript;
+        field.dispatchEvent(new Event("input", {bubbles:true}));
+        $("voiceStatus").textContent = "Voice input added.";
+      };
+      recognition.onerror = event => {
+        $("voiceStatus").textContent = "Voice input error: " + event.error + ". Check microphone permission.";
+      };
+      recognition.onend = () => {
+        button.classList.remove("listening");
+        button.textContent = (UI_TEXT[activeLanguage] || {})["🎙 Speak"] || "🎙 Speak";
+      };
+      try { recognition.start(); }
+      catch (error) { $("voiceStatus").textContent = "Could not start microphone. Try again."; }
+    }
+    document.addEventListener("click", event => {
+      const button = event.target.closest("button[data-voice-for]");
+      if (button) startVoiceInput(button.dataset.voiceFor, button);
+    });
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) {
+        $("voiceStatus").textContent = "Read-aloud is not supported in this browser.";
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = speechLocales[activeLanguage] || "en-IN";
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(voice => voice.lang.toLowerCase() === utterance.lang.toLowerCase()) ||
+        voices.find(voice => voice.lang.toLowerCase().startsWith(activeLanguage));
+      if (preferred) utterance.voice = preferred;
+      utterance.onstart = () => $("voiceStatus").textContent = "Reading aloud…";
+      utterance.onend = () => $("voiceStatus").textContent = "Finished reading.";
+      utterance.onerror = () => $("voiceStatus").textContent = "This device may not have a voice installed for the selected language.";
+      window.speechSynthesis.speak(utterance);
+    }
+    $("readPageButton").addEventListener("click", () => {
+      const clone = document.querySelector("main").cloneNode(true);
+      clone.querySelectorAll("button,input,select,textarea,img").forEach(el => el.remove());
+      speakText(clone.innerText.replace(/\s+/g, " ").trim());
+    });
+    // Re-translate new dashboard cards and tracker content when they are rendered.
+    const localizationObserver = new MutationObserver(records => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
+          else if (node.nodeType === Node.ELEMENT_NODE) {
+            const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+            let child;
+            while ((child = walker.nextNode())) translateTextNode(child);
+          }
+        }
+      }
+    });
+    localizationObserver.observe(document.body, {childList:true, subtree:true});
+    translatePage();
+
+  </script>
+</body>
+</html>
