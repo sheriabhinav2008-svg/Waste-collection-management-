@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartBin 360 | Login</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#18302a;background:#edf5ef}*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top left,#d4eee0,transparent 45%),#edf5ef}
+.wrap{width:min(100%,900px);display:grid;grid-template-columns:1fr 1fr;background:white;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px #18302a20}
+.brand{padding:48px 38px;background:linear-gradient(145deg,#14583f,#22865d);color:white;display:flex;flex-direction:column;justify-content:center}
+.logo{font-size:42px;margin-bottom:14px}.brand h1{font-size:32px;line-height:1.15;margin:0 0 14px}.brand p{line-height:1.7;color:#e0f3e8}.pill{display:inline-block;border:1px solid #ffffff70;border-radius:999px;padding:8px 12px;width:max-content;margin-top:12px;font-size:13px}
+.form-side{padding:40px 36px}.form-side h2{margin:0 0 8px;font-size:26px}.sub{color:#687a70;margin:0 0 25px;line-height:1.5}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}.role{border:1px solid #d4e2d9;background:#f7faf8;border-radius:12px;padding:13px;text-align:center;cursor:pointer;font-weight:700;color:#335348}.role.active{background:#e0f4e8;border:2px solid #22865d;color:#14583f}
+label{display:block;font-size:14px;font-weight:700;margin:15px 0 7px}input{width:100%;padding:13px 14px;border:1px solid #cfddd4;border-radius:10px;font-size:15px;outline:none}input:focus{border-color:#22865d;box-shadow:0 0 0 3px #22865d18}
+button.submit{width:100%;margin-top:22px;padding:14px;border:0;border-radius:10px;background:#176b4d;color:white;font-size:16px;font-weight:700;cursor:pointer}button.submit:hover{background:#12563e}
+.note{font-size:12px;color:#78877f;line-height:1.5;margin-top:18px}.message{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#fff4db;color:#725014;font-size:13px;line-height:1.5}
+@media(max-width:680px){.wrap{grid-template-columns:1fr}.brand{padding:28px}.brand h1{font-size:27px}.form-side{padding:30px 24px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="brand">
+<div class="logo">♻️</div>
+<h1>SmartBin 360</h1>
+<p>A cleaner community starts with you. Report waste or water issues, add photo evidence, and follow the progress of your complaint.</p>
+<span class="pill">Waste Collection Management</span>
+</section>
+<section class="form-side">
+<h2>Welcome back</h2>
+<p class="sub">Choose your portal and enter your details to continue.</p>
+<div class="roles" role="group" aria-label="Choose login type">
+<button type="button" class="role active" id="userRole" aria-pressed="true">👤 User Login</button>
+<button type="button" class="role" id="adminRole" aria-pressed="false">🛠 Admin Login</button>
+</div>
+<form id="loginForm">
+<label for="username">Username</label>
+<input id="username" name="username" type="text" placeholder="Enter your name or username" autocomplete="username" required minlength="2" maxlength="60">
+<label for="phone">Phone number</label>
+<input id="phone" name="phone" type="tel" placeholder="Enter 10-digit phone number" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}" maxlength="10" required>
+<button class="submit" type="submit" id="submitBtn">Continue to User Portal</button>
+<div class="message" id="message" role="status"></div>
+</form>
+<p class="note">Demo notice: this prototype uses username and phone number only. It does not verify identity or provide secure authentication. Do not use it to protect real administrator data.</p>
+</section>
+</main>
+<script>
+let role="user";
+const userRole=document.getElementById("userRole"),adminRole=document.getElementById("adminRole"),submitBtn=document.getElementById("submitBtn"),message=document.getElementById("message");
+function setRole(next){role=next;const isUser=role==="user";userRole.classList.toggle("active",isUser);adminRole.classList.toggle("active",!isUser);userRole.setAttribute("aria-pressed",String(isUser));adminRole.setAttribute("aria-pressed",String(!isUser));submitBtn.textContent=isUser?"Continue to User Portal":"Continue to Administrator Portal";message.style.display="none";}
+userRole.addEventListener("click",()=>setRole("user"));adminRole.addEventListener("click",()=>setRole("admin"));
+document.getElementById("loginForm").addEventListener("submit",function(event){event.preventDefault();if(!this.reportValidity())return;const username=document.getElementById("username").value.trim();const phone=document.getElementById("phone").value.trim();if(!/^[0-9]{10}$/.test(phone)){message.textContent="Please enter a valid 10-digit phone number.";message.style.display="block";return;}try{sessionStorage.setItem("smartbinProfile",JSON.stringify({username,phone,role}));}catch(e){}window.location.href=role==="admin"?"admin.html":"index.html";});
+</script>
+</body>
+</html>
