@@ -3,7 +3,7 @@
 **Project name:** Waste Collection Management System  
 **Demo name:** SmartBin 360
 
-A beginner-friendly, frontend-only project with a separate **Login page** (`login.html`), **User Portal** (`index.html`), and **Administrator Portal** (`admin.html`). Citizens can report waste and water-related issues, while administrators can review reports, assign collection workers, verify photos, and update progress.
+A beginner-friendly, frontend-only project with a **User Login page** (`login.html`), **User Portal** (`index.html`), and a separate **Administrator Portal** (`admin.html`). The user-facing pages contain no administrator dashboard or administrator login option. Citizens can report waste and water-related issues, receive a complaint ID, and track progress.
 
 ## Project Overview
 
@@ -11,11 +11,11 @@ The system provides a simple way to record a problem with a required before-coll
 
 ## Features
 
-- Separate Login page (`login.html`) with User/Admin selection and username + 10-digit phone number fields
+- User-only Login page (`login.html`) with username + 10-digit phone number fields; it routes only to the User Portal
 - Separate User Portal (`index.html`) for reporting and tracking complaints
 - Separate Administrator Portal (`admin.html`) for complaint review and management
 - Separate page layouts: the User Portal focuses on complaint submission and tracking; the Administrator Portal focuses on review, assignment, photo verification, and status management
-- Portal navigation returns to the Login page to choose a role
+- The User Portal has no administrator dashboard or administrator portal link; administrators use the separate `admin.html` page
 - Submit a report with the reporter's name, location, issue type, and description
 - Report different issues, including overflowing bins, water leakage or stagnant water, illegal dumping, missed collection, and waste segregation
 - Require a **before-collection photo** when submitting every complaint
@@ -29,9 +29,6 @@ The system provides a simple way to record a problem with a required before-coll
 - View a complaint timeline showing submission, officer-seen time, collector assignment changes, and status changes
 - Record the time when the dashboard user marks a complaint as seen by an officer
 - Show the current status, assigned collector, officer-viewed state, and update history in the citizen tracking panel
-- View total and status-wise dashboard counters
-- Filter reports by status
-- Load sample reports for a quick demonstration
 - Save demonstration reports in the browser's local storage
 
 - Select an interface language: English, Telugu, Hindi, Tamil, Kannada, Malayalam, Marathi, Bengali, Gujarati, Punjabi, Odia, or Urdu
@@ -61,18 +58,17 @@ No framework, package installation, or build step is required for this frontend 
    ```
 
 2. Open the downloaded project folder.
-3. Open `login.html` in a modern browser such as Chrome, Edge, or Firefox. Choose User Login or Admin Login and enter a username and 10-digit phone number.
+3. Open `login.html` in a modern browser such as Chrome, Edge, or Firefox. Enter a username and 10-digit phone number to continue to the User Portal.
 4. Fill in the report form and attach the required before-collection photo.
-5. Submit the complaint and note the complaint ID.
-6. The login demo routes users to `index.html` and administrators to `admin.html`. The User Portal focuses on submission and tracking; the Administrator Portal focuses on reviewing reports, assigning collectors, marking reports as seen, uploading after-collection photos, and updating statuses.
-7. Return to `index.html` to track a complaint using its ID.
+5. Submit the complaint. The page displays the generated complaint ID, fills it into the tracker, and shows the current status.
+6. The separate Administrator Portal is available at `admin.html`; it is not linked from the user-facing pages.
 
 ### Option 2: Download from GitHub
 
 1. Open this repository on GitHub.
 2. Select **Code → Download ZIP**.
 3. Extract the ZIP file.
-4. Start at `login.html`; the demo routes to `index.html` for users or `admin.html` for administrators.
+4. Start at `login.html`; it routes only to the User Portal (`index.html`). The Administrator Portal is a separate page at `admin.html`.
 
 ## How It Works
 
@@ -80,16 +76,16 @@ No framework, package installation, or build step is required for this frontend 
 2. The citizen must upload a before-collection photo. The selected image is previewed before submission.
 3. JavaScript creates a unique complaint ID and initially marks the report as **Pending**.
 4. The report and required before-collection photo are saved in the browser's localStorage.
-5. The dashboard displays the report, before/after photo comparison, and summary counters.
-6. A dashboard user can assign a collector, mark the report as seen by an officer, and upload an after-collection photo.
-7. Use the language selector in the header to choose a supported language. Use the microphone buttons to dictate the name, location, or description, and use **Read page aloud** for text-to-speech.
-7. The after photo is required before the report can be marked Completed. Photo uploads and other actions are added to the complaint timeline with timestamps.
-9. A citizen enters the complaint ID in **Track your complaint** to see the current status and the recorded timeline.
+5. After submission, the user portal displays the generated complaint ID and opens the complaint tracking timeline.
+6. Administrators use the separate `admin.html` page to assign a collector, mark reports as seen, upload after-collection photos, and update statuses.
+7. Use the language selector and microphone buttons for supported language and voice features.
+8. A citizen can enter the complaint ID in **Track your complaint** to see the latest status and recorded timeline.
 
 ## Basic System Architecture
 
 ```text
-Login page (`login.html`) → User Portal (`index.html`) or Administrator Portal (`admin.html`)
+User Login (`login.html`) → User Portal (`index.html`) → Complaint ID tracking
+Administrator Portal (`admin.html`) is a separate, unlinked page
           |                                            |
           v                                            v
  Report Form + Required Before Photo         Complaint Review / Assignment / Status
@@ -114,7 +110,7 @@ Login page (`login.html`) → User Portal (`index.html`) or Administrator Portal
 This is a **frontend-only student prototype**.
 
 - Data is stored in the browser where the project is being used; it is not automatically shared with other users or devices. The citizen tracker only finds reports saved in that same browser profile.
-- The portals have separate page layouts, but this is not secure access control: username and phone number are not verified, and anyone can select Admin Login or type `admin.html` directly. Add backend authentication and server-side role checks before using this for real users.
+- The User Login is only a frontend demo: username and phone number are not verified. The administrator page is not linked from user pages, but anyone who knows its URL can still open it. Add backend authentication and server-side role checks before using this for real users.
 - The **Mark as seen** control is a demo action for the dashboard user; the prototype does not authenticate officers or independently verify that an officer opened a report.
 - Timeline timestamps are generated by the browser and are suitable for demonstration, not as an authoritative audit log.
 - Before and after photos are stored as data in localStorage, so storage space is limited. Each image is limited to 1 MB; use small demo images.
