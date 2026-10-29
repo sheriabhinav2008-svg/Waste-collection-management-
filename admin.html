@@ -79,6 +79,12 @@
     .admin-page .layout { grid-template-columns:minmax(0, 1fr); }
 
   </style>
+<script>
+  // Frontend demo gate only; real access control must be enforced by a backend.
+  if (sessionStorage.getItem("smartbinAdminAuth") !== "true") {
+    window.location.replace("admin-login.html");
+  }
+</script>
 </head>
 <body class="admin-page">
   <header>
@@ -101,7 +107,7 @@
     <p class="voice-help">Use 🎙 Speak buttons to dictate into a field. Voice features depend on browser and device language support.</p>
     <nav class="page-nav" aria-label="Administrator portal navigation">
       <a href="admin.html" aria-current="page">🛠 Administrator Portal</a>
-      <a href="login.html">🔐 Login</a>
+      <a href="#" id="adminLogout">↪ Admin sign out</a>
     </nav>
   </header>
   <main>
@@ -583,5 +589,12 @@
     translatePage();
 
   </script>
+<script>
+  document.getElementById("adminLogout")?.addEventListener("click", function(event) {
+    event.preventDefault();
+    sessionStorage.removeItem("smartbinAdminAuth");
+    window.location.replace("admin-login.html");
+  });
+</script>
 </body>
 </html>
