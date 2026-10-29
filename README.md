@@ -22,7 +22,8 @@ The system provides a simple way to record a problem with a required before-coll
 - Report different issues, including overflowing bins, water leakage or stagnant water, illegal dumping, missed collection, and waste segregation
 - Require a **before-collection photo** when submitting every complaint
 - Require an **after-collection photo** from the officer/collector before allowing the status to become **Completed**
-- Display before-and-after photos side by side for visual comparison
+- Display before-and-after photos side by side for visual comparison in the administrator portal and show both photos in the user's complaint tracker
+- Automatically refresh the open user complaint tracker when the administrator uploads an after-cleaning photo or updates the complaint status in another tab of the same browser
 - Validate both images and limit each photo to 1 MB
 - Generate a unique complaint ID
 - Assign a collection worker to a report
@@ -79,7 +80,7 @@ No framework, package installation, or build step is required for this frontend 
 3. JavaScript creates a unique complaint ID and initially marks the report as **Pending**.
 4. The report and required before-collection photo are saved in the browser's localStorage.
 5. After submission, the user portal displays the generated complaint ID and opens the complaint tracking timeline.
-6. Administrators use the separate `admin.html` page to assign a collector, mark reports as seen, upload after-collection photos, and update statuses.
+6. Administrators use the separate `admin.html` page to assign a collector, mark reports as seen, upload after-collection photos, and update statuses. The after-cleaning photo is saved with the complaint and appears in the user's tracker when the same complaint ID is opened; an already-open user tracker refreshes when the admin tab saves changes in the same browser.
 7. Use the language selector and microphone buttons for supported language and voice features.
 8. A citizen can enter the complaint ID in **Track your complaint** to see the latest status and recorded timeline.
 
