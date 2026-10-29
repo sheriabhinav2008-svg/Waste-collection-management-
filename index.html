@@ -186,6 +186,15 @@
           <p>${escapeHtml(item.description)}</p>
           <p class="muted">Assigned collector: ${escapeHtml(item.collector || "Not yet assigned")}</p>
           <p class="muted">Officer viewed: ${escapeHtml(item.seenAt || "Not yet marked as seen")}</p>
+          <h3>Cleaning photo evidence</h3>
+          <div class="photo-comparison">
+            <div><strong>Before cleaning</strong>${item.photoDataUrl
+              ? '<img class="complaint-photo" src="' + escapeHtml(item.photoDataUrl) + '" alt="Before cleaning for ' + escapeHtml(item.id) + '" loading="lazy">'
+              : '<p class="muted">No before photo available.</p>'}</div>
+            <div><strong>After cleaning</strong>${item.afterPhotoDataUrl
+              ? '<img class="complaint-photo" src="' + escapeHtml(item.afterPhotoDataUrl) + '" alt="After cleaning for ' + escapeHtml(item.id) + '" loading="lazy"><p class="muted">After-cleaning photo uploaded by the administrator.</p>'
+              : '<p class="muted">The cleaning photo has not been uploaded yet. Check again after the administrator uploads it.</p>'}</div>
+          </div>
           <h3>Complaint timeline</h3>
           <ul class="timeline">${history.map(event => `<li><strong>${escapeHtml(event.title)}</strong><div>${escapeHtml(event.detail || "")}</div><time>${escapeHtml(formatTimestamp(event.timestamp))}</time></li>`).join("")}</ul>
         </div>`;
@@ -264,6 +273,15 @@
       event.preventDefault();
       const wantedId = $("trackId").value.trim().toUpperCase();
       renderTracker(readComplaints().find(item => item.id.toUpperCase() === wantedId));
+    });
+    // Keep the open user tracker fresh when the admin tab saves a status or photo
+    // in this same browser profile and on the same localhost/website origin.
+    window.addEventListener("storage", (event) => {
+      if (event.key !== STORAGE_KEY && event.key !== null) return;
+      const wantedId = $("trackId").value.trim().toUpperCase();
+      if (!wantedId) return;
+      const latest = readComplaints().find(item => item.id.toUpperCase() === wantedId);
+      renderTracker(latest);
     });
     // Interface localization and browser voice support. No external API key is required.
     const LANGUAGES = {
