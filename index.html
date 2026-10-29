@@ -73,10 +73,7 @@
     .page-nav { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
     .page-nav a { display:inline-block; color:#14553e; background:#e6f2ea; padding:9px 12px; border-radius:8px; text-decoration:none; font-weight:bold; }
     .page-nav a[aria-current="page"] { background:white; outline:2px solid #cfe2d5; }
-    .user-page main > .stats, .user-page .layout > section:nth-child(2) { display:none; }
     .user-page .layout { grid-template-columns:minmax(260px, 1fr); max-width:760px; margin-left:auto; margin-right:auto; }
-    .admin-page main > .tracker-panel, .admin-page .layout > section:first-child { display:none; }
-    .admin-page .layout { grid-template-columns:minmax(0, 1fr); }
 
   </style>
 </head>
@@ -101,17 +98,11 @@
     <p class="voice-help">Use 🎙 Speak buttons to dictate into a field. Voice features depend on browser and device language support.</p>
     <nav class="page-nav" aria-label="User portal navigation">
       <a href="index.html" aria-current="page">👤 User Portal</a>
-      <a href="login.html">🔐 Switch role / Login</a>
+      <a href="login.html">↩ Sign out</a>
     </nav>
   </header>
   <main>
-    <section class="stats" aria-label="Complaint statistics">
-      <div class="stat">Total reports<strong id="totalCount">0</strong></div>
-      <div class="stat">Pending<strong id="pendingCount">0</strong></div>
-      <div class="stat">In progress<strong id="progressCount">0</strong></div>
-      <div class="stat">Completed<strong id="completedCount">0</strong></div>
-      <div class="stat">Not completed<strong id="notCompletedCount">0</strong></div>
-    </section>
+
     <section class="panel tracker-panel">
       <h2>Track your complaint</h2>
       <p class="muted">Enter the complaint ID you received after submitting a report to see its latest status and update history.</p>
@@ -124,7 +115,7 @@
     <div class="layout">
       <section class="panel">
         <h2>Report a waste issue</h2>
-        <p class="muted">Enter a real or sample location to create a demo complaint.</p>
+        <p class="muted">Submit a report with photo evidence. Your complaint ID will be shown after submission so you can track progress.</p>
         <form id="reportForm">
           <label for="reporter">Your name</label>
           <div class="field-voice"><input id="reporter" required maxlength="60" placeholder="e.g. Asha" /><button class="voice-btn" type="button" data-voice-for="reporter">🎙 Speak</button></div>
@@ -149,18 +140,7 @@
         </form>
         <p class="muted">Demo note: reports are saved in this browser using localStorage. This is not a secure multi-user production system.</p>
       </section>
-      <section class="panel">
-        <h2>Collection management dashboard</h2>
-        <div class="toolbar">
-          <select id="statusFilter" aria-label="Filter by status">
-            <option value="All">All statuses</option><option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Not Completed">Not Completed</option>
-          </select>
-          <button class="secondary" id="loadSample" type="button">Load sample reports</button>
-          <button class="danger" id="clearAll" type="button">Clear demo data</button>
-        </div>
-        <div id="complaintList" aria-live="polite"></div>
-      </section>
+
     </div>
   </main>
   <footer>SmartBin 360 · User Portal · Student demo only; complaint data stays in this browser.</footer>
@@ -209,64 +189,6 @@
           <h3>Complaint timeline</h3>
           <ul class="timeline">${history.map(event => `<li><strong>${escapeHtml(event.title)}</strong><div>${escapeHtml(event.detail || "")}</div><time>${escapeHtml(formatTimestamp(event.timestamp))}</time></li>`).join("")}</ul>
         </div>`;
-    }
-    function renderPhotos(item) {
-      const before = item.photoDataUrl
-        ? '<img class="complaint-photo" src="' + escapeHtml(item.photoDataUrl) + '" alt="Before collection for ' + escapeHtml(item.id) + '" loading="lazy">'
-        : '<p class="muted">No before photo saved</p>';
-      const after = item.afterPhotoDataUrl
-        ? '<img class="complaint-photo" src="' + escapeHtml(item.afterPhotoDataUrl) + '" alt="After collection for ' + escapeHtml(item.id) + '" loading="lazy">'
-        : '<p class="muted">Not uploaded yet</p>';
-      return '<div class="photo-comparison"><div><strong>Before collection *</strong>' + before + '</div><div><strong>After collection *</strong>' + after +
-        '<label for="after-photo-' + escapeHtml(item.id) + '">Upload after photo (required to complete)</label>' +
-        '<input class="photo-input after-photo-input" id="after-photo-' + escapeHtml(item.id) + '" data-id="' + escapeHtml(item.id) + '" type="file" accept="image/*" aria-label="Upload after-collection photo for ' + escapeHtml(item.id) + '">' +
-        '<p class="muted">Image limit: 1 MB.</p></div></div>';
-    }
-    function render() {
-      const all = readComplaints();
-      $("totalCount").textContent = all.length;
-      $("pendingCount").textContent = all.filter(x => x.status === "Pending").length;
-      $("progressCount").textContent = all.filter(x => x.status === "In Progress").length;
-      $("completedCount").textContent = all.filter(x => x.status === "Completed").length;
-      $("notCompletedCount").textContent = all.filter(x => x.status === "Not Completed").length;
-      const filter = $("statusFilter").value;
-      const shown = all.filter(x => filter === "All" || x.status === filter);
-      const list = $("complaintList");
-      if (!shown.length) {
-        list.innerHTML = '<div class="empty">No reports to display. Submit a complaint or load sample reports.</div>';
-        return;
-      }
-      list.innerHTML = shown.slice().reverse().map(item => {
-        const cssStatus = item.status.toLowerCase().replace(" ", "-");
-        return `
-          <article class="complaint">
-            <div class="complaint-top"><div>
-              <h3>${escapeHtml(item.type)} <span class="muted">· ${escapeHtml(item.id)}</span></h3>
-              <div><strong>Location:</strong> ${escapeHtml(item.location)}</div>
-            </div><span class="pill ${cssStatus}">${escapeHtml(item.status)}</span></div>
-            <p>${escapeHtml(item.description)}</p>
-            ${renderPhotos(item)}
-            <div class="muted">Reported by ${escapeHtml(item.reporter)} · ${escapeHtml(item.createdAt)}</div>
-            <div class="muted">${item.seenAt ? "Seen by officer: " + escapeHtml(item.seenAt) : "Not yet marked as seen by an officer"}</div>
-            <div class="actions">
-              <label for="worker-${item.id}" style="margin:0">Assign collector</label>
-              <select id="worker-${item.id}" aria-label="Assign collector for ${escapeHtml(item.id)}">
-                <option value="">Unassigned</option>
-                ${["Collector Ravi", "Collector Meena", "Collector Arun"].map(name =>
-                  `<option value="${name}" ${item.collector === name ? "selected" : ""}>${name}</option>`
-                ).join("")}
-              </select>
-              <button class="secondary" data-action="save" data-id="${item.id}">Save</button>
-              <button class="secondary" data-action="seen" data-id="${item.id}" ${item.seenAt ? "disabled" : ""}>${item.seenAt ? "Seen by officer ✓" : "Mark as seen"}</button>
-              <select id="status-${item.id}" aria-label="Status for ${escapeHtml(item.id)}">
-                ${statuses.map(s => `<option ${item.status === s ? "selected" : ""}>${s}</option>`).join("")}
-              </select>
-              <button class="secondary" data-action="status" data-id="${item.id}">Update status</button>
-            </div>
-            <div class="muted">${item.collector ? "Assigned to: " + escapeHtml(item.collector) : "Not yet assigned"}</div>
-            <div class="muted">Last updated: ${escapeHtml(item.updatedAt || item.createdAt)}</div>
-          </article>`;
-      }).join("");
     }
     const photoInput = $("issuePhoto");
     const photoPreview = $("photoPreview");
@@ -330,103 +252,19 @@
         photoPreview.removeAttribute("src");
         photoPreview.style.display = "none";
         removePhotoButton.hidden = true;
-        render();
-        alert("Complaint submitted successfully!");
+        $("trackId").value = complaint.id;
+        renderTracker(complaint);
+        $("trackResult").scrollIntoView({ behavior: "smooth", block: "start" });
+        alert("Complaint submitted successfully! Your complaint ID is: " + complaint.id + "\nPlease save this ID to track your complaint.");
       } catch (error) {
         alert("Could not save this report. Your browser storage may be full. Try a smaller photo or remove older demo reports.");
       }
     });
-    $("complaintList").addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-action]");
-      if (!button) return;
-      const items = readComplaints();
-      const item = items.find(x => x.id === button.dataset.id);
-      if (!item) return;
-      if (button.dataset.action === "save") {
-        const newCollector = $("worker-" + item.id).value;
-        if (item.collector !== newCollector) {
-          item.collector = newCollector;
-          addHistory(item, "Collector assignment updated", newCollector ? "Assigned to " + newCollector + "." : "Collector assignment removed.");
-        }
-      } else if (button.dataset.action === "seen") {
-        if (!item.seenAt) {
-          const now = new Date();
-          item.seenAt = now.toLocaleString();
-          addHistory(item, "Seen by officer", "An officer marked this complaint as viewed.", now.toISOString());
-        }
-      } else if (button.dataset.action === "status") {
-        const newStatus = $("status-" + item.id).value;
-        if (newStatus === "Completed" && !item.afterPhotoDataUrl) {
-          alert("Upload the required after-collection photo before marking this complaint Completed.");
-          $("after-photo-" + item.id).focus();
-          return;
-        }
-        if (item.status !== newStatus) {
-          const oldStatus = item.status;
-          item.status = newStatus;
-          addHistory(item, "Status changed", oldStatus + " → " + newStatus);
-        }
-      }
-      saveComplaints(items);
-      if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
-      render();
-    });
-    $("complaintList").addEventListener("change", (event) => {
-      const input = event.target.closest("input.after-photo-input");
-      if (!input) return;
-      const file = input.files && input.files[0];
-      if (!file) return;
-      if (!file.type.startsWith("image/")) { alert("Please choose an image file."); input.value = ""; return; }
-      if (file.size > 1024 * 1024) { alert("Please choose an image smaller than 1 MB."); input.value = ""; return; }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const items = readComplaints();
-        const item = items.find(x => x.id === input.dataset.id);
-        if (!item) return;
-        item.afterPhotoDataUrl = String(reader.result || "");
-        addHistory(item, "After-collection photo uploaded", "Photo evidence of the cleaned location was added.");
-        try {
-          saveComplaints(items);
-          render();
-          if ($("trackId").value.trim().toUpperCase() === item.id.toUpperCase()) renderTracker(item);
-        } catch (error) {
-          alert("Could not save the photo. Browser storage may be full. Try a smaller image or clear old demo reports.");
-        }
-      };
-      reader.onerror = () => alert("The after-collection photo could not be read. Please try another image.");
-      reader.readAsDataURL(file);
-    });
-
     $("trackForm").addEventListener("submit", (event) => {
       event.preventDefault();
       const wantedId = $("trackId").value.trim().toUpperCase();
       renderTracker(readComplaints().find(item => item.id.toUpperCase() === wantedId));
     });
-    $("statusFilter").addEventListener("change", render);
-    function makeSample(reporter, location, type, description, status, collector) {
-      const now = new Date();
-      const item = { id: makeId(), reporter, location, type, description, status, collector, createdAt: now.toLocaleString(), createdAtISO: now.toISOString(), updatedAt: now.toLocaleString(), seenAt: "", history: [] };
-      addHistory(item, "Complaint submitted", "Sample report created for demonstration.", now.toISOString());
-      if (status !== "Pending") addHistory(item, "Status changed", "Pending → " + status, now.toISOString());
-      return item;
-    }
-    $("loadSample").addEventListener("click", () => {
-      const items = readComplaints();
-      if (items.length && !confirm("Add sample reports to the existing list?")) return;
-      items.push(
-        makeSample("Asha", "College Main Gate", "Overflowing bin", "The public bin is almost full and waste is beside it.", "Pending", ""),
-        makeSample("Rahul", "Bus Stop, Sector 2", "Missed collection", "Waste has not been collected today.", "In Progress", "Collector Ravi"),
-        makeSample("Priya", "Park Entrance", "Illegal dumping", "A pile of household waste needs pickup.", "Completed", "Collector Meena")
-      );
-      saveComplaints(items); render();
-    });
-    $("clearAll").addEventListener("click", () => {
-      if (confirm("Delete all SmartBin 360 demo reports from this browser?")) {
-        localStorage.removeItem(STORAGE_KEY); render();
-      }
-    });
-    render();
-
     // Interface localization and browser voice support. No external API key is required.
     const LANGUAGES = {
       en: {locale:"en-IN",font:"Arial, sans-serif"},
